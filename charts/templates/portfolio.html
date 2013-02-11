@@ -1,0 +1,829 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+<p align=right> <?php echo $lang['PORTFOLIO_LATEST_DATE'] . $latest[2] . ' ' . $lang['PORTFOLIO_LATEST_TIME'] . $latest[4]; ?></p>
+
+<center>
+
+<!-- We start with the Portfolio -->
+<?php if ($portfolionoshow==1) { echo $lang['PORTFOLIO_PORT_EMPTY'];} else { ?>
+
+<table class="listtable"><caption><?php echo $lang['PORTFOLIO_TITLE_PORT']; ?><br><br></caption>
+<thead><tr>
+<th scope="col" width="80"><?php echo $lang['PORTFOLIO_SYMBOL']; ?></th>
+<th scope="col" width="250"><?php echo $lang['PORTFOLIO_INST_NAME']; ?></th>
+<th scope="col" width="85"  title="<?php echo $lang['SEARCHRESULTS_SIGNAL_INFO']; ?>"><?php echo $lang['PORTFOLIO_STRENGTH']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_CURR_PRICE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_INTRA_DELTA']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_ENTRY_DATE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_ENTRY_PRICE']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_STOPLOSS']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_FREETRADE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_QUANTITY']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_INVESTED']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_PL']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_PLPERC']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_EXIT_DATE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_EXIT_PRICE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_COMMISION']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_NETPL']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_NETPLPERC']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_DAYS']; ?></th>
+<th scope="col" width="35"></th>
+<th scope="col" width="150"><?php echo $lang['PORTFOLIO_ACTION']; ?></th>
+</tr>
+</thead>
+
+
+<tbody>
+
+
+<?php
+				$i=0;
+				$rowclass=0;
+				$portflines=0;
+				while ($row = mysql_fetch_assoc($portf_query)) {
+				
+				$ID                   = $row['ID'];
+				$symbol               = $row['symbol'];
+				$instrumentname       = $row['instrument_name'];
+				$stoplossorder        = round($row['stoploss'],2);
+				
+				$ichiquery = mysql_query("SELECT ichimoku_signal, symbol_period, close, tenkan_sen FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND open<>'NULL' ORDER BY symbol_period DESC LIMIT 1");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrow     = mysql_fetch_assoc($ichiquery);
+					$ichimoku_signal        = ($signalrow["ichimoku_signal"]);
+					$period_yesterday       = (($signalrow["symbol_period"]-1));
+					$close                  = ($signalrow["close"]);
+					$tenkan                 = ($signalrow["tenkan_sen"]);
+				
+				
+				$ichiquery2 = mysql_query("SELECT close, ichimoku_signal, tenkan_sen FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery2);
+					$ichi_sign_yest    = ($signalrowpast["ichimoku_signal"]);
+					$tenkan_yest       = ($signalrowpast["tenkan_sen"]);
+					$close_yest        = ($signalrowpast["close"]);
+
+				$ichiquery3 = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery3);
+					$ichi_sign_l_week  = ($signalrowpast["ichimoku_signal"]);
+
+				$ichiquery4 = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery4);
+					$ichi_sign_l_month = ($signalrowpast["ichimoku_signal"]);
+
+					
+					if ($rowclass==0) {$oddeven=''; $rowclass=1;} else {$oddeven='class="odd"'; $rowclass=0;}
+					
+
+					if ($multiP==0) {
+						$price        = round($portf_phpObj->query->results->quote->LastTradePriceOnly, 3);
+						$open         = round($portf_phpObj->query->results->quote->Open, 3);}
+						else {
+						$price        = round($portf_phpObj->query->results->quote[$i]->LastTradePriceOnly, 3);
+						$open         = round($portf_phpObj->query->results->quote[$i]->Open, 3);}
+						
+					// some conditional formatting
+					if ($price == 0) {$price = round($close,3); $YQLinfo = "<font color=blue title='".$lang['PORTFOLIO_CURR_PRICE_NO_YQL']."'>* </font>";} 
+					if ($price<>0){
+						if ($price > $open) {$currentprice = "<font color='green'>".$price."&uarr;</font>";} else {$currentprice = "<font color='red'>".$price."&darr;</font>";}
+					} else {$price=" ";}
+					// end
+				if ($open>0) {$int_dc = round(((($price / $close_yest) - 1) * 100), 2)."%";}
+					if ($int_dc>0) {
+						$int_d       = "<font color='green'>&nbsp".$int_dc."</font>";} else {
+						$int_d       = "<font color='red'>".$int_dc."</font>";}
+				$entry_date           = $row['entry_date']; 			if ($entry_date == NULL) {$entry_date=0;}
+				$entry_price          = round($row['entry_price'], 3); 	if ($entry_price == NULL) {$entry_price=0;}
+				$quantity             = $row['quantity']; 				if ($quantity == NULL) {$quantity=0;}
+				$invested             = round(($entry_price * $quantity), 2);
+				$exit_date            = $row['exit_date']; 				if ($exit_date == NULL) {$exit_date=0;}
+				$exit_price           = round($row['exit_price'], 3); 			if ($exit_price == NULL) {$exit_price=0;}
+				$commision            = round($row['commision'],2);
+					if ($exit_date==null) {
+						$PLc          = round((($price - $entry_price) * $quantity), 2);
+						$netPLc       = round((($price - $entry_price) * $quantity) - $commision, 2);} else {
+						$PLc          = round((($exit_price - $entry_price) * $quantity), 2);
+						$netPLc       = round((($exit_price - $entry_price) * $quantity)- $commision, 2); }
+					if ($netPLc>0) {
+						$netPL        = "<font color='green'>&nbsp".$netPLc."</font>";} else {
+						$netPL        = "<font color='red'>".$netPLc."</font>";}
+					if ($PLc>0)    {
+						$PL           = "<font color='green'>&nbsp".$PLc."</font>";} else {
+						$PL           = "<font color='red'>".$PLc."</font>";}
+					
+					if ($entry_price<>null) {
+						if ($exit_date==null) {
+							$PLpercc      = round(((($price / $entry_price) - 1) * 100), 2);} else {
+							$PLpercc      = round(((($exit_price / $entry_price) - 1) * 100), 2);}
+				    }
+					if ($PLpercc>0) {
+						$PLperc       = "<font color='green'>&nbsp".$PLpercc."%</font>";} else {
+						$PLperc       = "<font color='red'>".$PLpercc."%</font>";}
+					
+					if ($entry_price<>null) {
+						$netPLpercc      = round((($netPLc / $invested) * 100), 2)."%";} else {
+						$netPLpercc      = "";}
+
+					if ($netPLpercc>0) {
+						$netPLperc       = "<font color='green'>&nbsp".$netPLpercc."</font>";} else {
+						$netPLperc       = "<font color='red'>".$netPLpercc."</font>";}						
+					
+					if ($exit_date==null) {
+						$days         = (strtotime(date("Y-m-d")) - strtotime($entry_date)) / (60 * 60 * 24); } else {
+						$days         = (strtotime($exit_date) - strtotime($entry_date)) / (60 * 60 * 24); }
+						
+					if ($entry_date == null) {$days=0;}
+				$taxc                 = round($netPLc * ($user->data['taxreserve']), 2);
+					if ($taxc>0) {
+						$tax          = "<font color='green'>&nbsp".$taxc."</font>";} else {
+						$tax          = "<font color='red'>".$taxc."</font>";}
+				$type                 = $row['type'];
+				$comments             = $row['comments'];
+				$keynotes             = $row['keynotes'];
+					
+				// Determine the progress / regress and set the formatting for the Ichimoku Signal
+				if ($ichimoku_signal > $ichi_sign_yest) {
+					$signal = $ichimoku_signal.'<font color="green" title="'.$lang['PORTFOLIO_ICHI_HIGHER'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">&nbsp&uarr;</font>';} else {
+						if ($ichimoku_signal < $ichi_sign_yest) {
+					$signal = $ichimoku_signal.'<font color="red" title="'.$lang['PORTFOLIO_ICHI_LOWER'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">&nbsp&darr;</font>';} else {
+					$signal = '<font title="'.$lang['PORTFOLIO_ICHI_SAME'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">'.$ichimoku_signal.'&nbsp=</font>';}}
+				
+				// Calculate StopLoss order level
+				//if ($ichimoku_signal >= 0) {
+					// Calculate the 'distance' between the price & Tenkan Sen
+					$distanceTenkan = round(((($price - $tenkan) / $price) * 100),2);
+					
+					if (($PLpercc > ($user->data['profit_buffer']*100)) && ($price > $tenkan)) {
+						$stoploss         = round($price * (1 - $user->data['profit_exit_alert']),2);} else {
+						$stoploss         = round($tenkan * (1 - $user->data['profit_exit_alert']),2);}
+						// Calculate the 'distance' between the price & the StopLoss
+						$distanceSL = round(((($price - $stoploss) / $price) * 100),2);
+				/*} else {
+					// Calculate the 'distance' between the price & Tenkan Sen
+					$distanceTenkan = round(((($tenkan - $price) / $price) * 100),2);
+					
+						if (($PLpercc > ($user->data['profit_buffer'])*100) && ($price < $tenkan)) {
+						$stoploss         = round($tenkan + ($price * $user->data['profit_buffer'] ),2);} else {
+						$stoploss         = round($price * (1 + $user->data['profit_buffer']),2);}
+						// Calculate the 'distance' between the price & the StopLoss 
+						$distanceSL = round(((($stoploss - $price) / $price) * 100),2);
+				}*/
+				
+					// Calculate exit alert
+					//Exit alert: If price is > x% away from Tenkan Sen, exit the trade if Tenkan Sen is flat:
+					if (($distanceTenkan > ($user->data['profit_buffer'])*100) && ($tenkan == $tenkan_yest)) {
+					$exitalert = "<font color= 'red' size='3' title='".$lang['PORTFOLIO_EXITBUFFER1']." ".$lang['PORTFOLIO_EXITBUFFER2']." ".$distanceTenkan."%, ".$lang['PORTFOLIO_EXITBUFFER3']." ".(($user->data['profit_buffer'])*100)."%. ".$lang['PORTFOLIO_EXITBUFFER4']."'><b>&nbsp!</b></font>";}
+				
+				
+		
+					// Calculate if we have a FreeTrade or not
+				if (($ichimoku_signal >= 0) && ($entry_date<>null)) {
+					if ($stoplossorder > $entry_price) { 
+					$freetrade = '<img src="../charts/images/heart.png" border="0" >';
+					$freetradecapital = $freetradecapital + $invested;                                    } else {
+					$freetrade = '';}
+				}
+				if (($ichimoku_signal < 0) && ($entry_date<>null)) {
+					if (($stoplossorder < $stoploss)  && ($entry_date<>null)) { 
+					$freetrade = '<img src="../charts/images/heart.png" border="0" >';
+					$freetradecapital = $freetradecapital + $invested;                                    } else {
+					$freetrade = '';}
+				}
+				
+				
+				$i++;
+				$portflines++;
+				// Calculate totals
+				$totalinvested  = $totalinvested + $invested;
+				$totalPL        = $totalPL + $PLc;
+				if ($totalinvested>0) {$totalPLperc       = round((($totalPL / $totalinvested) * 100), 2)."%";}
+				$totalcommision = $totalcommision + $commision;
+				$totalNetPL     = $totalNetPL + $netPLc;
+				if ($totalinvested>0) {$totalNetPLperc    = round((($totalNetPL / $totalinvested) * 100), 2)."%";}
+				$totaldays      = $totaldays + $days;
+				$avdays         = round(($totaldays / $i),0);
+				//$totaltax       = $totaltax + $taxc;
+				$totaltax       = round($totalPL * ($user->data['taxreserve']),2);
+				$netresult      = $totalNetPL - $totaltax;
+				
+					if ($user->data['use_free_trade'] == 'yes') {
+						$cashAvailableToInvest = round((($user->data['trading_capital'] * $user->data['invest_limit']) - $totalinvested + $freetradecapital),0);
+							if ($freetradecapital > ($user->data['trading_capital'] - ($user->data['trading_capital'] * $user->data['invest_limit']))){ $cashAvailableToInvest = $user->data['trading_capital'] - $freetradecapital; }
+					} 
+					else
+					{$cashAvailableToInvest = round((($user->data['trading_capital'] * $user->data['invest_limit']) - $totalinvested),0);}
+				?>
+<?php $a++; ?>
+<tr <?php echo $oddeven; ?>>
+<td><?php echo $symbol; ?></td>
+<td>
+<form method='post' action='?page=searchresult' id='my_form_c<?php echo $a; ?>'>
+<input type='hidden' name='yahoo_symbol' value='<?php echo $symbol; ?>'>
+<input type='hidden' name='chartsize' value='<?php echo $user->data['page_chartsize']; ?>'>
+<a href="javascript:{}" onclick="document.getElementById('my_form_c<?php echo $a; ?>').submit(); return false;"><?php echo $instrumentname; ?></a>
+</form>
+</td> 
+<td><?php echo $signal; ?></td>
+<td><?php echo $YQLinfo . $currentprice; ?></td>
+<td><?php echo $int_d; ?></td>
+<td class='datepicker' id='<?php echo $ID.'|entry_date'; ?>'><?php echo $entry_date; ?></td>
+<td class='edit' id='<?php echo $ID.'|entry_price'; ?>' style='color:#288EE0;' ><?php echo $entry_price; ?><?php echo $exitalert; ?></td>
+<td class='edit' id='<?php echo $ID.'|stoploss'; ?>' style='color:#288EE0;' title="<?php echo $lang['PORTFOLIO_DISTANCE_TENKAN'].' '.$distanceTenkan.'%, '.$lang['PORTFOLIO_DISTANCE_SL'].' '.$distanceSL.'%. '.$lang['PORTFOLIO_SUGGESTED_SL'].$stoploss; ?>"><?php echo $stoplossorder; ?></td>
+<td><?php echo $freetrade; ?></td>
+
+<td class='edit' id='<?php echo $ID.'|quantity'; ?>'><?php echo $quantity; ?></td>
+<td><?php echo $invested; if ($invested > (round((($user->data['trading_capital'])*($user->data['max_per_trade'])),0))) { echo "<font color='red' size='0.5' title='".$lang['PORTFOLIO_INVESTED_COMMENT']." ".(round((($user->data['trading_capital'])*($user->data['max_per_trade'])),0))." ". $user->data['currency']."'>&nbsp&#120;</font>";} ?></td>
+<td><?php echo $PL; ?></td>
+<td><?php echo $PLperc; ?></td>
+<td class='datepicker' id='<?php echo $ID.'|exit_date'; ?>'><?php echo $exit_date; ?></td>
+<td class='edit' id='<?php echo $ID.'|exit_price'; ?>' style='color:#288EE0;'><?php echo $exit_price; ?></td>
+<td class='edit' id='<?php echo $ID.'|commision'; ?>'><?php echo $commision; ?></td>
+<td><?php echo $netPL; ?></td>
+<td><?php echo $netPLperc; ?></td>
+<td><?php echo $days; ?></td>
+<td><img src="../charts/images/info.png" border="0" title="<?php echo $comments; ?>" id="<?php echo $ID.'portfolio_clickcomment'; ?>"></td>
+
+<td>
+<a href="ps/portfolio_update.php?id=<?php echo $ID.'|type'; ?>&value=history" title= "<?php echo $lang['PORTFOLIO_MOVE_HIST']; ?>"><img src="../charts/images/archive.png" border="0" onclick="return window.confirm('<?php echo $lang['PORTFOLIO_ALERT_HIST']; ?>');"></a>
+<a href="ps/portfolio_delete.php?id=<?php echo $ID; ?>" title= "<?php echo $lang['PORTFOLIO_DELETE']; ?>"><img src="../charts/images/bin.png" border="0" onclick="return window.confirm('<?php echo $lang['PORTFOLIO_ALERT_DELETE']; ?>');"></a>
+<img src="../charts/images/<?php if ($user->data['portfolio_charts']==yes) {echo "chart.png";} else {echo "edit.png"; }?>" border="0" id="<?php echo $ID.'clickchart'; ?>">
+</td>
+</tr>
+<tr id='<?php echo $ID.'portfolio_comment'; ?>'>
+<td colspan='21' class='edit' id='<?php echo $ID.'|comments'; ?>'>
+<?php echo $comments; ?>
+</td>
+</tr>
+
+<tr id='<?php echo $ID.'chart'; ?>'>
+<?php
+if ($user->data['portfolio_charts']==yes) {?>
+<td colspan='14'>
+<iframe src="ps/portfolio_chart.php?yahoo_symbol=<?php echo $symbol; ?>&chartsize=<?php echo $user->data['page_chartsize']; ?>" height="650" width="100%" frameborder="0"></iframe>
+</td>
+<td  colspan='6' class='edit_area' id='<?php echo $ID.'|keynotes'; ?>' valign='top'><?php echo $keynotes; ?>
+</td>
+<?php }
+else { ?>
+<td  colspan='20' class='edit_area' id='<?php echo $ID.'|keynotes'; ?>' valign='top'><?php echo $keynotes; ?>
+<?php } ?>
+</tr>
+
+<?php
+
+$javacomment[] = "  $('#".$ID."portfolio_comment').hide();
+			 $('#".$ID."portfolio_clickcomment').click(function() {
+			 $('#".$ID."portfolio_comment').toggle();
+			 }); ";
+
+$javacommentcode = implode('', array_values($javacomment));
+
+$javachart[] = "  $('#".$ID."chart').hide();
+			 $('#".$ID."clickchart').click(function() {
+			 $('#".$ID."chart').toggle();
+			 }); ";
+
+$javachartcode = implode('', array_values($javachart));
+
+}
+echo " <script>".$javacommentcode."</script>";
+echo " <script>".$javachartcode."</script>";
+?>
+
+<tfoot>
+<tr>
+<td scope="row" colspan="7">
+<?php if ($totaltax>0) {echo $lang['PORTFOLIO_TAX_RESERVE'].'<font color="green">'.$totaltax.'</font>&nbsp&nbsp';} else {echo '';} ?> <!-- summ of tax reserve -->
+<?php if ($netresult>0) {echo $lang['PORTFOLIO_NETRESULT'].'<font color="green">'.$netresult.'</font>';} else {echo '';} ?></td>
+<td></td>
+<td colspan="2"></td>
+<td><?php echo $totalinvested; ?></td>		<!-- summ of invested amounts -->
+<td><?php echo $totalPL; ?></td>            <!-- summ of PL based on market variation (no expenses taken into account) -->
+<td><?php if ($totalNetPL>0) {echo '<font color="green">'.$totalPLperc.'</font>';} else {echo '<font color="red">'.$totalPLperc.'</font>';} ?></td>		<!-- avereaged profit/loss -->
+<td></td>
+
+
+<td></td>
+<td><?php if ($totalcommision>0) {echo $totalcommision;} ?></td>		<!-- summ commision amounts -->
+<td><?php if ($totalNetPL>0) {echo '<font color="green"> '.$totalNetPL.'</font>';} else {echo '<font color="red"> '.$totalNetPL.'</font>';} ?></td>		<!-- Net summ of profit/loss amounts -->
+<td><?php if ($totalNetPL>0) {echo '<font color="green">'.$totalNetPLperc.'</font>';} else {echo '<font color="red">'.$totalNetPLperc.'</font>';} ?></td>		<!-- Net avereaged profit/loss -->
+<td><?php echo $avdays; ?></td>			<!-- average number of days -->
+<td colspan="2"></td>
+
+</tr></tfoot>
+
+
+
+</tbody></table>
+</center>
+<?php } ?>
+
+<br><br>
+<table class="listtable">
+<thead><tr>
+<th scope="col" width="120"><?php echo $lang['MYACCOUNT_TRAD_CAPITAL']; ?></th>
+<th scope="col" width="120"><?php echo $lang['MYACCOUNT_TRAD_CAP_MAX']; ?></th>
+<th scope="col" width="120"><?php echo $lang['MYACCOUNT_MIN_VOLUME']; ?></th>
+<th scope="col" width="120"><?php echo $lang['PORTFOLIO_AVAILABLE']; ?></th>
+<th scope="col" width="120"><?php echo $lang['PORTFOLIO_AV_INV_SIZE']; ?></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><?php echo $user->data['trading_capital']; ?>&nbsp<?php echo $user->data['currency']; ?></td>
+<td><?php $trade_cap_max = round((($user->data['trading_capital'])*($user->data['max_per_trade'])),0); echo $trade_cap_max .'&nbsp'. $user->data['currency'] .'&nbsp('. round(($user->data['max_per_trade']*100),0) .'%)'; ?></td>
+<td><?php echo $user->data['min_volume_instrument']; ?></td>
+<td><?php echo $cashAvailableToInvest .'&nbsp'.  $user->data['currency']; ?></td>
+<td><?php if ($portflines > 0) {$average = round(($totalinvested / $portflines),0); if ($average > $trade_cap_max) {$string = "<font color='red'>" .$average."</font>";} else {$string = $average;} echo $string .'&nbsp'. $user->data['currency']; } ?></td>
+<tr>
+
+</table>
+<center>
+
+
+
+<br><br><br>
+<!-- ----------------------------  Here we do the favorites -----------------------------------------  -->
+<?php if ($favoritesnoshow==1) { echo $lang['PORTFOLIO_FAVO_EMPTY'];} else { ?>
+<table class="listtable"><caption><?php echo $lang['PORTFOLIO_TITLE_FAV']; ?><br><br></caption>
+<thead><tr>
+<th scope="col" width="90"><?php echo $lang['PORTFOLIO_SYMBOL']; ?></th>
+<th scope="col" width="250"><?php echo $lang['PORTFOLIO_INST_NAME']; ?></th>
+<th scope="col" width="85" title="<?php echo $lang['SEARCHRESULTS_SIGNAL_INFO']; ?>"><?php echo $lang['PORTFOLIO_STRENGTH']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_CURR_PRICE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_INTRA_DELTA']; ?></th>
+<th scope="col" width="85" title="<?php echo $lang['PORTFOLIO_ENTRY_RULES_COMM']; ?>"><?php echo $lang['PORTFOLIO_ENTRY_RULES_TITLE']; ?></th>
+<th scope="col" width="85"><?php echo "<center>".$lang['PORTFOLIO_ENRTY_SL_TITLE']."<br><font size='0.5'><center>(".($user->data['bull_entry_buffer']*100)."%)</font></center>"; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_ADD_DATE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_ADD_PRICE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_PL']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_PLPERC']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_DAYS']; ?></th>
+<th scope="col" width="35"></th>
+<th scope="col" width="150"><?php echo $lang['PORTFOLIO_ACTION']; ?></th>
+</tr>
+</thead>
+<tbody>
+<?php
+					
+				$i=0;
+				$rowclass=0;
+				while ($row = mysql_fetch_assoc($favo_query)) {
+					if ($rowclass==0) {$oddeven=''; $rowclass=1;} else {$oddeven='class="odd"'; $rowclass=0;}
+				$ID                   = $row['ID'];
+				$symbol               = $row['symbol'];
+				$instrumentname       = $row['instrument_name'];
+				$date_added           = $row['date_added'];
+				$price_at_date_added  = round($row['price_at_date_added'], 3);
+
+				$ichiquery = mysql_query("SELECT ichimoku_signal, symbol_period, close, tenkan_sen FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND open<>'NULL' ORDER BY symbol_period DESC LIMIT 1");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrow     = mysql_fetch_assoc($ichiquery);
+					$ichimoku_signal        = ($signalrow["ichimoku_signal"]);
+					$period_yesterday       = (($signalrow["symbol_period"]-1));
+					$close                  = ($signalrow["close"]);
+					$tenkan                 = ($signalrow["tenkan_sen"]);
+				
+				
+				$ichiquery2 = mysql_query("SELECT ichimoku_signal, tenkan_sen FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery2);
+					$ichi_sign_yest    = ($signalrowpast["ichimoku_signal"]);
+					$tenkan_yest       = ($signalrowpast["tenkan_sen"]);
+
+				$ichiquery3 = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery3);
+					$ichi_sign_l_week  = ($signalrowpast["ichimoku_signal"]);
+
+				$ichiquery4 = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery4);
+					$ichi_sign_l_month = ($signalrowpast["ichimoku_signal"]);
+
+					
+					if ($multiF==0) {
+						$price        = round($favo_phpObj->query->results->quote->LastTradePriceOnly, 3);
+						$open         = round($favo_phpObj->query->results->quote->Open, 3);
+						$AverageVolume= $favo_phpObj->query->results->quote->AverageDailyVolume;}
+						else {
+						$price        = round($favo_phpObj->query->results->quote[$i]->LastTradePriceOnly, 3);
+						$open         = round($favo_phpObj->query->results->quote[$i]->Open, 3);
+						$AverageVolume= $favo_phpObj->query->results->quote[$i]->AverageDailyVolume;}				
+					// some conditional formatting
+					if ($price==null){
+						$Query = mysql_query("SELECT * FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND date='$today' ");
+						$row = mysql_fetch_assoc($query);
+						$price = $row[close];
+						$open  = $row[open];
+						
+					} else {
+						if ($price > $open) {$currentprice = "<font color='green'>".$price."&uarr;</font>";} else {$currentprice = "<font color='red'>".$price."&darr;</font>";}
+					}
+					// end
+
+					if ($open>0) {$int_dc = round(((($price / $open) - 1) * 100), 2)."%";}
+					if ($int_dc>0) {
+						$int_d       = "<font color='green'>&nbsp".$int_dc."</font>";} else {
+						$int_d       = "<font color='red'>".$int_dc."</font>";}
+						
+					$PLc          = round(($price - $price_at_date_added), 2);
+						if ($PLc>0) {
+							$PL           = "<font color='green'>&nbsp".$PLc."</font>";} else {
+							$PL           = "<font color='red'>".$PLc."</font>";}
+					
+					$PLpercc      = round(((($price / $price_at_date_added) - 1) * 100), 2)."%";
+					if ($PLpercc>0) {
+						$PLperc       = "<font color='green'>&nbsp".$PLpercc."</font>";} else {
+						$PLperc       = "<font color='red'>".$PLpercc."</font>";}
+				
+					$days                 = round((strtotime(date("Y-m-d")) - strtotime($date_added)) / (60 * 60 * 24),0);
+					
+				$comments             = $row['comments'];
+				$keynotes             = $row['keynotes'];
+				
+				// Determine the progress / regress and set the formatting for the Ichimoku Signal
+				if ($ichimoku_signal > $ichi_sign_yest) {
+					$signal = $ichimoku_signal.'<font color="green" title="'.$lang['PORTFOLIO_ICHI_HIGHER'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">&nbsp&uarr;</font>';} else {
+						if ($ichimoku_signal < $ichi_sign_yest) {
+					$signal = $ichimoku_signal.'<font color="red" title="'.$lang['PORTFOLIO_ICHI_LOWER'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">&nbsp&darr;</font>';} else {
+					$signal = '<font title="'.$lang['PORTFOLIO_ICHI_SAME'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">'.$ichimoku_signal.'&nbsp=</font>';}}
+				
+					// Get Tenkan Sen & Kijun Sen to calculate Entry rule indicators
+					$query = mysql_query ("SELECT * FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND open<>'null' ORDER BY symbol_period DESC LIMIT 0,1");
+					$row = mysql_fetch_row($query);
+						$tenkan = $row[13];
+						$tenkandelta = ($price * ($user->data['bull_entry_tenkan']));
+						$kijun  = $row[14];
+						$kijundelta = ($price * ($user->data['bull_entry_kijun']));
+					// Calculate entry rule indicators
+						if ($ichimoku_signal >=0) {
+							if (($price - $tenkandelta) < $tenkan) { $tenkanentry="<font color='green' size='0.1'>".$lang['PORTFOLIO_TE_BULL_ENTRY_OK']." ".($user->data['bull_entry_tenkan'] *100)."%</font>";} else {$tenkanentry= ""; /*"<font color='red' size='0.1'>".$lang['PORTFOLIO_TE_BULL_ENTRY_WAIT']." ".($user->data['bull_entry_tenkan'] *100)."%</font>";*/}
+							if (($price - $kijundelta) < $kijun)   { $kijunentry="<font color='green' size='0.1'>".$lang['PORTFOLIO_KI_BULL_ENTRY_OK']." ".($user->data['bull_entry_kijun'] *100)."%</font>"; } else {$kijunentry= ""; /*"<font color='red' size='0.1'>".$lang['PORTFOLIO_KI_BULL_ENTRY_WAIT']." ".($user->data['bull_entry_kijun'] *100)."%</font>";*/}
+							$entrySL = round(($price * (1 - ($user->data['bull_entry_buffer']))),2);
+							}
+							else
+							{
+							if (($price + $tenkandelta) < $tenkan) { $tenkanentry="<font color='green' size='0.1'>".$lang['PORTFOLIO_TE_BULL_ENTRY_OK']." ".($user->data['bull_entry_tenkan'] *100)."%</font>";} else {$tenkanentry= ""; /*"<font color='red' size='0.1'>".$lang['PORTFOLIO_TE_BULL_ENTRY_WAIT']." ".($user->data['bull_entry_tenkan'] *100)."%</font>";*/}
+							if (($price + $kijundelta) < $kijun)   { $kijunentry="<font color='green' size='0.1'>".$lang['PORTFOLIO_KI_BULL_ENTRY_OK']." ".($user->data['bull_entry_kijun'] *100)."%</font>"; } else {$kijunentry= ""; /*"<font color='red' size='0.1'>".$lang['PORTFOLIO_KI_BULL_ENTRY_WAIT']." ".($user->data['bull_entry_kijun'] *100)."%</font>";*/}
+							$entrySL = round(($price * (1 + ($user->data['bull_entry_buffer']))),2);
+							}
+					// Average daily volume verification
+						if ($AverageVolume > $user->data['min_volume_instrument']) { $VolumeOKnotOK = ""; /* "<font color='green' size='0.1'>V > ".($user->data['min_volume_instrument']/1000)."k</font>";*/} else { $VolumeOKnotOK = "<font color='red' size='0.1'>V < ".($user->data['min_volume_instrument']/1000)."k</font>";}
+				
+				$i++; $a++;
+?>
+<tr <?php echo $oddeven; ?>>
+<td><?php echo $symbol; ?></td>
+<td>
+<form method='post' action='?page=searchresult' id='my_form_c<?php echo $a; ?>'>
+<input type='hidden' name='yahoo_symbol' value='<?php echo $symbol; ?>'>
+<input type='hidden' name='chartsize' value='<?php echo $user->data['page_chartsize']; ?>'>
+<a href="javascript:{}" onclick="document.getElementById('my_form_c<?php echo $a; ?>').submit(); return false;"><?php echo $instrumentname; ?></a>
+</form>
+</td>
+<td><center><?php echo $signal."<br>".$VolumeOKnotOK; ?></center></td>
+<td><?php echo $currentprice; ?></td>
+<td><?php echo $int_d; ?></td>
+<td><?php echo $tenkanentry.'<br>'.$kijunentry; ?></td>
+<td><center><?php echo $entrySL; ?></center></td>
+<td><?php echo $date_added; ?></td>
+<td><?php echo $price_at_date_added; ?></td>
+<td><?php echo $PL; ?></td>
+<td><?php echo $PLperc; ?></td>
+<td><?php echo $days; ?></td>
+<td><img src="../charts/images/info.png" border="0" title="<?php echo $comments; ?>" id="<?php echo $ID.'favclickcomment'; ?>"></td>
+
+<td>
+<a href="ps/portfolio_update.php?id=<?php echo $ID.'|type'; ?>&value=portfolio" title= "<?php echo $lang['PORTFOLIO_MOVE_PORT']; ?>"><img src="../charts/images/archive.png" border="0"></a>
+<a href="ps/portfolio_delete.php?id=<?php echo $ID; ?>" title= "<?php echo $lang['PORTFOLIO_FAV_DELETE']; ?>"><img src="../charts/images/bin.png" border="0" onclick="return window.confirm('<?php echo $lang['PORTFOLIO_ALERT_FAV_DELETE']; ?>');"></a>
+<img src="../charts/images/chart.png" border="0" id="<?php echo $ID.'favclickchart'; ?>">
+</td>
+</tr>
+<tr id='<?php echo $ID.'favcomment'; ?>'>
+<td colspan='13' class='edit' id='<?php echo $ID.'|comments'; ?>'>
+<?php echo $comments; ?>
+</td>
+</tr>
+
+<tr id='<?php echo $ID.'favchart'; ?>'>
+<?php /*
+<!--
+<td colspan='9'>
+<iframe src="ps/portfolio_chart.php?yahoo_symbol=<?php echo $symbol; ?>&chartsize=<?php echo $user->data['page_chartsize']; ?>" height="650" width="100%" frameborder="0"></iframe>
+</td>
+
+<td colspan='4' class='edit_area' id='<?php echo $ID.'|keynotes'; ?>' valign='top'><?php echo $keynotes; ?>
+--> */
+?>
+
+<td colspan='13' class='edit_area' id='<?php echo $ID.'|keynotes'; ?>' valign='top'><?php echo $keynotes; ?>
+</td>
+</tr>
+
+<?php
+
+$javafavcomment[] = "  $('#".$ID."favcomment').hide();
+			 $('#".$ID."favclickcomment').click(function() {
+			 $('#".$ID."favcomment').toggle();
+			 }); ";
+
+$javafavcommentcode = implode('', array_values($javafavcomment));
+
+$javafavchart[] = "  $('#".$ID."favchart').hide();
+			 $('#".$ID."favclickchart').click(function() {
+			 $('#".$ID."favchart').toggle();
+			 }); ";
+
+$javafavchartcode = implode('', array_values($javafavchart));
+
+}
+
+echo " <script>".$javafavcommentcode."</script>";
+echo " <script>".$javafavchartcode."</script>";
+?>
+</tbody></table>
+
+<?php } ?>
+					
+
+
+<p></p><p></p>
+<!--  ******************************************    HISTORY SECTION  *************************************        -->
+
+<?php if ($historynoshow==1) { echo $lang['PORTFOLIO_HISTO_EMPTY']."<br><br><br>";} 
+
+else { 
+$totalinvested  =0;
+$totalPL        =0;
+$totalcommision =0;
+$totalNetPL     =0;
+$totaldays      =0;
+$avdays         =0;
+$totaltax       =0;
+$netresult      =0;
+?>
+
+<table class="listtable"><caption><?php echo $lang['PORTFOLIO_TITLE_HIS']; ?><br><br></caption>
+<thead><tr>
+<th scope="col" width="80"><?php echo $lang['PORTFOLIO_SYMBOL']; ?></th>
+<th scope="col" width="250"><?php echo $lang['PORTFOLIO_INST_NAME']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_ENTRY_DATE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_ENTRY_PRICE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_QUANTITY']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_INVESTED']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_PL']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_PLPERC']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_EXIT_DATE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_EXIT_PRICE']; ?></th>
+<th scope="col" width="85"><?php echo $lang['PORTFOLIO_COMMISION']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_NETPL']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_NETPLPERC']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_DAYS']; ?></th>
+<th scope="col" width="65"><?php echo $lang['PORTFOLIO_TAX']; ?></th>
+<th scope="col" width="35"></th>
+<th scope="col" width="150"><?php echo $lang['PORTFOLIO_ACTION']; ?></th>
+</tr>
+</thead>
+
+
+<tbody>
+
+
+<?php
+				$i=0;
+				$rowclass=0;
+				$portflines=0;
+				while ($row = mysql_fetch_assoc($histo_query)) {
+				
+				$ID                   = $row['ID'];
+				$symbol               = $row['symbol'];
+				$instrumentname       = $row['instrument_name'];
+				
+				$ichiquery = mysql_query("SELECT ichimoku_signal, symbol_period, close, tenkan_sen FROM myichi_historical_data 
+										  WHERE yahoo_symbol='$symbol' 
+										  AND open<>'NULL' 
+										  ORDER BY symbol_period DESC 
+										  LIMIT 1");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrow     = mysql_fetch_assoc($ichiquery);
+					$ichimoku_signal        = ($signalrow["ichimoku_signal"]);
+					$period_yesterday       = (($signalrow["symbol_period"]-1));
+					$close                  = ($signalrow["close"]);
+					$tenkan                 = ($signalrow["tenkan_sen"]);
+				
+				
+				$ichiquery2 = mysql_query("SELECT ichimoku_signal, tenkan_sen FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery2);
+					$ichi_sign_yest    = ($signalrowpast["ichimoku_signal"]);
+					$tenkan_yest       = ($signalrowpast["tenkan_sen"]);
+
+				$ichiquery3 = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery3);
+					$ichi_sign_l_week  = ($signalrowpast["ichimoku_signal"]);
+
+				$ichiquery4 = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$symbol' AND symbol_period='$period_yesterday' ");
+						if (!$ichiquery) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$signalrowpast     = mysql_fetch_assoc($ichiquery4);
+					$ichi_sign_l_month = ($signalrowpast["ichimoku_signal"]);
+
+					
+					if ($rowclass==0) {$oddeven=''; $rowclass=1;} else {$oddeven='class="odd"'; $rowclass=0;}
+					
+
+					if ($multiP==0) {
+						$price        = round($portf_phpObj->query->results->quote->LastTradePriceOnly, 3);
+						$open         = round($portf_phpObj->query->results->quote->Open, 3);}
+						else {
+						$price        = round($portf_phpObj->query->results->quote[$i]->LastTradePriceOnly, 3);
+						$open         = round($portf_phpObj->query->results->quote[$i]->Open, 3);}
+						
+					// some conditional formatting
+					if ($price == 0) {$price = round($close,3); $YQLinfo = "<font color=blue title='".$lang['PORTFOLIO_CURR_PRICE_NO_YQL']."'>* </font>";} 
+					if ($price<>0){
+						if ($price > $open) {$currentprice = "<font color='green'>".$price."&uarr;</font>";} else {$currentprice = "<font color='red'>".$price."&darr;</font>";}
+					} else {$price=" ";}
+					// end
+				if ($open>0) {$int_dc = round(((($price / $open) - 1) * 100), 2)."%";}
+					if ($int_dc>0) {
+						$int_d       = "<font color='green'>&nbsp".$int_dc."</font>";} else {
+						$int_d       = "<font color='red'>".$int_dc."</font>";}
+				$entry_date           = $row['entry_date']; 			if ($entry_date == NULL) {$entry_date=0;}
+				$entry_price          = round($row['entry_price'], 3); 	if ($entry_price == NULL) {$entry_price=0;}
+				$quantity             = $row['quantity']; 				if ($quantity == NULL) {$quantity=0;}
+				$invested             = round(($entry_price * $quantity), 2);
+				$exit_date            = $row['exit_date']; 				if ($exit_date == NULL) {$exit_date=0;}
+				$exit_price           = round($row['exit_price'], 3); 			if ($exit_price == NULL) {$exit_price=0;}
+				$commision            = round($row['commision'],2);
+						$PLc          = round((($exit_price - $entry_price) * $quantity), 2);
+						$netPLc       = round((($exit_price - $entry_price) * $quantity)- $commision, 2); 
+					if ($netPLc>0) {
+						$netPL        = "<font color='green'>&nbsp".$netPLc."</font>";} else {
+						$netPL        = "<font color='red'>".$netPLc."</font>";}
+					if ($PLc>0)    {
+						$PL           = "<font color='green'>&nbsp".$PLc."</font>";} else {
+						$PL           = "<font color='red'>".$PLc."</font>";}
+					
+					if ($entry_price<>null) {
+						if ($exit_date==null) {
+							$PLpercc      = round(((($price / $entry_price) - 1) * 100), 2);} else {
+							$PLpercc      = round(((($exit_price / $entry_price) - 1) * 100), 2);}
+				    }
+					if ($PLpercc>0) {
+						$PLperc       = "<font color='green'>&nbsp".$PLpercc."%</font>";} else {
+						$PLperc       = "<font color='red'>".$PLpercc."%</font>";}
+					
+					if ($entry_price<>null) {
+						$netPLpercc      = round((($netPLc / $invested) * 100), 2)."%";} else {
+						$netPLpercc      = "";}
+
+					if ($netPLpercc>0) {
+						$netPLperc       = "<font color='green'>&nbsp".$netPLpercc."</font>";} else {
+						$netPLperc       = "<font color='red'>".$netPLpercc."</font>";}						
+					
+					if ($exit_date==null) {
+						$days         = (strtotime(date("Y-m-d")) - strtotime($entry_date)) / (60 * 60 * 24); } else {
+						$days         = (strtotime($exit_date) - strtotime($entry_date)) / (60 * 60 * 24); }
+						
+					if ($entry_date == null) {$days=0;}
+				$taxc                 = round($netPLc * ($user->data['taxreserve']), 2);
+					if ($taxc>0) {
+						$tax          = "<font color='green'>&nbsp".$taxc."</font>";} else {
+						$taxc         = round($PLc, 2);
+						$tax          = "<font color='red'>".$taxc."</font>";}
+				$type                 = $row['type'];
+				$comments             = $row['comments'];
+				$keynotes             = $row['keynotes'];
+					
+				// Determine the progress / regress and set the formatting for the Ichimoku Signal
+				if ($ichimoku_signal > $ichi_sign_yest) {
+					$signal = $ichimoku_signal.'<font color="green" title="'.$lang['PORTFOLIO_ICHI_HIGHER'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">&nbsp&uarr;</font>';} else {
+						if ($ichimoku_signal < $ichi_sign_yest) {
+					$signal = $ichimoku_signal.'<font color="red" title="'.$lang['PORTFOLIO_ICHI_LOWER'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">&nbsp&darr;</font>';} else {
+					$signal = '<font title="'.$lang['PORTFOLIO_ICHI_SAME'].' '.$lang['PORTFOLIO_ICHI_L_WEEK'].' '.$ichi_sign_l_week.' '.$lang['PORTFOLIO_ICHI_L_MONTH'].' '.$ichi_sign_l_month.'">'.$ichimoku_signal.'&nbsp=</font>';}}
+				
+				
+				$i++;
+				$portflines++;
+				// Calculate totals
+				$totalinvested  = $totalinvested + $invested;
+				$totalPL        = $totalPL + $PLc;
+				if ($totalinvested>0) {$totalPLperc       = round((($totalPL / $totalinvested) * 100), 2)."%";}
+				$totalcommision = $totalcommision + $commision;
+				$totalNetPL     = $totalNetPL + $netPLc;
+				if ($totalinvested>0) {$totalNetPLperc    = round((($totalNetPL / $totalinvested) * 100), 2)."%";}
+				$totaldays      = $totaldays + $days;
+				$avdays         = round(($totaldays / $i),0);
+				$totaltax       = round($totalPL * ($user->data['taxreserve']),2);
+				$netresult      = $totalNetPL - $totaltax;
+				
+				?>
+<?php $a++; ?>
+<tr <?php echo $oddeven; ?>>
+<td><?php echo $symbol; ?></td>
+<td>
+<form method='post' action='?page=searchresult' id='my_form_c<?php echo $a; ?>'>
+<input type='hidden' name='yahoo_symbol' value='<?php echo $symbol; ?>'>
+<input type='hidden' name='chartsize' value='<?php echo $user->data['page_chartsize']; ?>'>
+<a href="javascript:{}" onclick="document.getElementById('my_form_c<?php echo $a; ?>').submit(); return false;"><?php echo $instrumentname; ?></a>
+</form>
+</td> 
+<td ><?php echo $entry_date; ?></td>
+<td style='color:#288EE0;'><?php echo $entry_price; ?></td>
+<td ><?php echo $quantity; ?></td>
+<td><?php echo $invested; if ($invested > (round((($user->data['trading_capital'])*($user->data['max_per_trade'])),0))) { echo "<font color='red' size='0.5' title='".$lang['PORTFOLIO_INVESTED_COMMENT']." ".(round((($user->data['trading_capital'])*($user->data['max_per_trade'])),0))." ". $user->data['currency']."'>&nbsp&#120;</font>";} ?></td>
+<td><?php echo $PL; ?></td>
+<td><?php echo $PLperc; ?></td>
+<td><?php echo $exit_date; ?></td>
+<td style='color:#288EE0;'><?php echo $exit_price; ?></td>
+<td><?php echo $commision; ?></td>
+<td><?php echo $netPL; ?></td>
+<td><?php echo $netPLperc; ?></td>
+<td><?php echo $days; ?></td>
+<td><?php echo $tax; ?></td>
+<td><img src="../charts/images/info.png" border="0" title="<?php echo $comments; ?>" id="<?php echo $ID.'clickcomment'; ?>"></td>
+
+<td>
+<a href="ps/portfolio_update.php?id=<?php echo $ID.'|type'; ?>&value=portfolio" title= "<?php echo $lang['PORTFOLIO_HIST_TO_PORTFOLIO']; ?>"><img src="../charts/images/archive.png" border="0" onclick="return window.confirm('<?php echo $lang['PORTFOLIO_HIST_ALERT']; ?>');"></a>
+<a href="ps/portfolio_delete.php?id=<?php echo $ID; ?>" title= "<?php echo $lang['PORTFOLIO_HIST_DELETE']; ?>"><img src="../charts/images/bin.png" border="0" onclick="return window.confirm('<?php echo $lang['PORTFOLIO_HIST_ALERT']; ?>');"></a>
+<img src="../charts/images/<?php if ($user->data['portfolio_charts']==yes) {echo "chart.png";} else {echo "edit.png"; }?>" border="0" id="<?php echo $ID.'clickchart'; ?>">
+</td>
+</tr>
+<tr id='<?php echo $ID.'comment'; ?>'>
+<td colspan='21' class='edit' id='<?php echo $ID.'|comments'; ?>'>
+<?php echo $comments; ?>
+</td>
+</tr>
+
+<tr id='<?php echo $ID.'chart'; ?>'>
+<td  colspan='21' class='edit_area' id='<?php echo $ID.'|keynotes'; ?>' valign='top'><?php echo $keynotes; ?>
+</tr>
+
+<?php
+
+$javahistcomment[] = "  $('#".$ID."comment').hide();
+			 $('#".$ID."clickcomment').click(function() {
+			 $('#".$ID."comment').toggle();
+			 }); ";
+
+$javahistcommentcode = implode('', array_values($javahistcomment));
+
+$javahistchart[] = "  $('#".$ID."chart').hide();
+			 $('#".$ID."clickchart').click(function() {
+			 $('#".$ID."chart').toggle();
+			 }); ";
+
+$javahistchartcode = implode('', array_values($javahistchart));
+
+}
+echo " <script>".$javahistcommentcode."</script>";
+echo " <script>".$javahistchartcode."</script>";
+?>
+
+<tfoot>
+<tr>
+<td scope="row" colspan="4">
+<?php if ($totaltax>0) {echo $lang['PORTFOLIO_TAX_RESERVE'].'<font color="green">'.$totaltax.'</font>&nbsp&nbsp';} else {echo '';} ?>
+<?php if ($netresult>0) {echo $lang['PORTFOLIO_NETRESULT'].'<font color="green">'.$netresult.'</font>';} else {echo '';} ?></td>
+<td></td>
+<td><?php echo $totalinvested; ?></td>		<!-- summ of invested amounts -->
+           
+<td><?php if ($totalPL>0) {echo '<font color="green"> '.$totalPL.'</font>';} else {echo '<font color="red"> '.$totalPL.'</font>';} ?></td>		<!-- summ of PL based on market variation (no expenses taken into account)  -->
+<td><?php if ($totalNetPL>0) {echo '<font color="green">'.$totalPLperc.'</font>';} else {echo '<font color="red">'.$totalPLperc.'</font>';} ?></td>		<!-- avereaged profit/loss -->
+<td></td>
+<td></td>
+<td><?php if ($totalcommision>0) {echo $totalcommision;} ?></td>		<!-- summ commision amounts -->
+<td><?php if ($totalNetPL>0) {echo '<font color="green"> '.$totalNetPL.'</font>';} else {echo '<font color="red"> '.$totalNetPL.'</font>';} ?></td>		<!-- Net summ of profit/loss amounts -->
+<td><?php if ($totalNetPL>0) {echo '<font color="green">'.$totalNetPLperc.'</font>';} else {echo '<font color="red">'.$totalNetPLperc.'</font>';} ?></td>		<!-- Net avereaged profit/loss -->
+<td><?php echo $avdays; ?></td>			<!-- average number of days -->
+<td></td>		<!-- summ of tax reserve -->
+<td colspan="2"></td>
+
+</tr></tfoot>
+
+
+
+</tbody></table>
+</center>
+<?php } ?>
+
+
+
+<br><br><br>
+</td>

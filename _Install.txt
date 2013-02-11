@@ -1,0 +1,45 @@
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+
+
+***********************************************************************
+*                                                                     *
+*                 MyIchimoku Installation Guidence                    *
+*                                                                     *
+***********************************************************************
+
+Requirements:
+PHP 5
+MySQL 5
+ftp and command line access to the server 
+Access to MySQL via phpMyAdmin or something similar.
+
+FYI: I use a standard hosting service from ovh.com
+
+Files to edit:
+- In the root folder: config, webconfig, rpc
+- Files in the Cron folder: open them all up, you will need to change path in most if not all files here.
+  Especially look into the backup scripts as they offer you the option to ftp your backups to another server for additional security
+  of your data :-)
+- Check all files in the 'Functions' folder for paths to be modified
+- The "YQL keys" files in the 'includes' folder require to be modified with your your API Key (Consumer Key) and Shared Secret 
+  (Consumer Secret). You get this from your Yahoo! developper account. 
+  If you don't have one, this is a great moment to create one and it is FOC :-)
+- In the 'Page' folder, the "autocomplete" file needs to be modified with the your domain.
+- Note: the code in the .htaccess file is ensuring you do not need to type www. before your tldn :-)
+
+Create the tables with the file _MyIchimoku_SQL.sql
+Data to help you get started can be found here: http://MyIchimoku.eu/download/data/
+
+Cross your fingers and hope it now works :-)
+Have fun!
+Oscar

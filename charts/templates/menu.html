@@ -1,0 +1,505 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+<body>
+
+<?php 
+	if($user->signed){ ?>
+
+<!-- We are logged into the system! -->	
+	
+<!-- Start of Form menu content code -->
+	<div id="tabs">
+    <ul id="tabMenu">
+	    <li class="regular"><a href="?page=home"><?php echo $lang['MENU_HOME']; ?></a></li>
+		<li class="regular"><a href="?page=portfolio"><?php echo $lang['MENU_PORTFOLIO']; ?></a></li>
+		<li class="regular"><a href="?page=tradingplan"><?php echo $lang['MENU_TRADING_PLAN']; ?></a></li>
+		<li class="regular"><a href="?page=account"><?php echo $lang['MENU_MY_ACCOUNT']; ?></a></li>
+		<li class="dropdown"><a href="#tab1"><?php echo $lang['MENU_SCREENING']; ?></a></li>
+		<li class="dropdown"><a href="#tab2"><?php echo $lang['MENU_PREFERENCES']; ?></a></li>
+		<li class="dropdown"><a href="#tab3"><?php echo $lang['MENU_OPTIONS']; ?></a></li>
+        <?php if ($user->data['group_id']==9) { echo '<li class="regular"><a href="?page=admin">' . $lang["MENU_ADMIN"] . '</a></li>';} ?>
+
+		<!-- <li class="regular"><a href="" onclick="popup_portfolio()">Portfolio Charts</a></li>
+		<li class="regular"><a href="" onclick="popup_favorites()">Favorites Charts</a></li> -->
+		<!-- <li class="regular"><a href="" onclick="popup_screening()">MyIchimoku Screener</a></li> -->
+		
+		<li class="regular"><a href="ps/logout.php"><?php echo $lang['MENU_LOGOUT']; ?></a></li>
+
+		
+    </ul>
+		
+		<form method="post" action="?page=searchresult">
+		
+			&nbsp;&nbsp;&nbsp;<input class="input" name="yahoo_symbol" type="text" value="" id="inputString" onkeyup="lookup(this.value);" onblur="fill(); "  autocomplete="off" />
+			<input type="hidden" name="chartsize" value="<?php echo $user->data['page_chartsize']; ?>">
+		<input value="Search" src="/charts/images/search_small.png" type="image">
+		<div class="suggestionsBox" id="suggestions" style="display: none;">
+				 <div class="suggestionList" id="autoSuggestionsList">		
+				</div>
+			</div>
+			<?php if ($user->data['backtrading']=='yes') {echo "&nbsp<font class=\"regular\" color='yellow'>".$lang['MYACCOUNT_BACKTRADING_ALERT']."</font>";} ?>
+			
+			
+		
+		
+		</form> <!--
+		<form method="post" action="?page=searchresult">
+			&nbsp;&nbsp;&nbsp;
+			<input class="input" name="yahoo_symbol" type="text" id="searchString" >
+			<input type="hidden" name="chartsize" value="<?php echo $user->data['page_chartsize']; ?>">
+		<input value="Search" src="/charts/images/search_small.png" type="image">
+		</form> -->
+		
+	</div>
+
+<div id="tabContainer">
+<ul id="tabPanes">
+<!--                     Screening tab             -->
+    <li id="tab1">
+        <p>
+            <div class="formcontainer">
+			<form name="screener" action="page/popup.php" target="_blank" method="post">
+			<input type="hidden" name="type" value="screening">
+			<table width="100%">
+			<tr>
+			<td colspan="3"><div class="text"><br><center><?php echo $lang['SCREENING_TITLE']; ?></center><br></td>
+			</tr>
+			<?php 
+				if (date("l") == 'Saturday') 
+					{$last = date("Y-m-d", strtotime("-1 day"));
+					 $day='sat';} 
+						else 
+						{if (date("l") == 'Sunday') 
+							{$last = date("Y-m-d", strtotime("-2 days"));
+							 $day='sun';}
+							else
+							{$last = date("Y-m-d");
+							 $day='week';}
+							} 
+				if (date("l") == 'Saturday') 
+					{$last1 = date("Y-m-d", strtotime("-2 day"));
+					 $day='sat';} 
+						else 
+						{if (date("l") == 'Sunday') 
+							{$last1 = date("Y-m-d", strtotime("-3 days"));
+							 $day='sun';}
+							else
+							{$last1 = date("Y-m-d", strtotime("-1 days"));
+							 $day='week';}
+							}
+				if (date("l") == 'Saturday') 
+					{$last2 = date("Y-m-d", strtotime("-3 day"));
+					 $day='sat';} 
+						else 
+						{if (date("l") == 'Sunday') 
+							{$last2 = date("Y-m-d", strtotime("-4 days"));
+							 $day='sun';}
+							else
+							{$last2 = date("Y-m-d", strtotime("-2 days"));
+							 $day='week';}
+							}
+				if (date("l") == 'Saturday') 
+					{$last3 = date("Y-m-d", strtotime("-4 day"));
+					 $day='sat';} 
+						else 
+						{if (date("l") == 'Sunday') 
+							{$last3 = date("Y-m-d", strtotime("-5 days"));
+							 $day='sun';}
+							else
+							{$last3 = date("Y-m-d", strtotime("-3 days"));
+							 $day='week';}
+							}
+				if (date("l") == 'Saturday') 
+					{$last4 = date("Y-m-d", strtotime("-5 day"));
+					 $day='sat';} 
+						else 
+						{if (date("l") == 'Sunday') 
+							{$last4 = date("Y-m-d", strtotime("-6 days"));
+							 $day='sun';}
+							else
+							{$last4 = date("Y-m-d", strtotime("-4 days"));
+							 $day='week';}
+							}
+			?>			
+			<tr>
+			<td width="15%">
+			<td>
+			<?php echo $lang['SCREENING_STRENGT']; ?>
+			</td>
+			<td>
+			<select name="signal">
+			<?php
+			$query = mysql_query("SELECT ichimoku_signal,COUNT(*) AS count FROM myichi_historical_data WHERE date='$last' AND average_volume >= '500' GROUP BY ichimoku_signal");
+				if (!$query) { echo 'Impossible d\'exécuter la requête : ' . mysql_error();	exit; }
+				while ($row = mysql_fetch_assoc($query)) {
+					if ($row[ichimoku_signal]==13) {$s=' SELECTED';} else {$s='';}
+					echo '<option value="'.$row[ichimoku_signal].'"'.$s.'>'.$row[ichimoku_signal].' => '.$lang['SCREENING_QTY'].$row[count].'</option>';
+					 
+			}
+			?>
+			</select>
+			</tr>
+			
+			<tr>
+			<td width="15%">
+			<td><?php echo $lang['SCREENING_MARK']; ?></td>
+			
+			<td>
+			<select name="market">
+			<option value="ALL" SELECTED><?php echo $lang['SCREENING_ALL']; ?></option>
+			<option value="EUROPE" ><?php echo $lang['SCREENING_EUR']; ?></option>
+			<option value="AMS" >&nbsp<?php echo $lang['SCREENING_AMS']; ?></option>
+			<option value="PAR" >&nbsp<?php echo $lang['SCREENING_PAR']; ?></option>
+			<option value="BRU" >&nbsp<?php echo $lang['SCREENING_BRU']; ?></option>
+			<option value="LIS" >&nbsp<?php echo $lang['SCREENING_LIS']; ?></option>
+			<option value="USA" ><?php echo $lang['SCREENING_USA']; ?></option>
+			<option value="FOREX" ><?php echo $lang['SCREENING_FOR']; ?></option>
+			</select>
+			</td>
+			</tr>
+			
+			<tr>
+			<td width="15%">
+			<td><?php echo $lang['SCREENING_VOL']; ?></td>
+			
+			<td>
+			<select  name="volume">
+			<option value="500k" ><?php echo $lang['SCREENING_500K']; ?></option>
+			<option value="100k" SELECTED><?php echo $lang['SCREENING_100K']; ?></option>
+			<option value="50k" ><?php echo $lang['SCREENING_50K']; ?></option>
+			<option value="10k" ><?php echo $lang['SCREENING_10K']; ?></option>
+			<option value="any" ><?php echo $lang['SCREENING_ANY']; ?></option>
+			</select>
+			</td>
+			</tr>
+
+			<tr>
+			<td width="15%">
+			<td><?php echo $lang['SCREENING_DATE']; ?></td>
+			
+			<td>
+			<select name="date">
+			<option value="<?php echo $last; ?>" SELECTED><?php echo $last; ?></option>
+			<option value="<?php echo $last1; ?>" ><?php echo $last1; ?></option>
+			<option value="<?php echo $last2; ?>" ><?php echo $last2; ?></option>
+			<option value="<?php echo $last3; ?>" ><?php echo $last3; ?></option>
+			<option value="<?php echo $last4; ?>" ><?php echo $last4; ?></option>
+			</select>
+			</td>
+			</tr>
+			<tr>
+			<td colspan="3">
+			    <center><br>
+                <div class="block" id="button">
+                <button><?php echo $lang['SCREENING_BUTTON']; ?></button>
+                </div>
+            </center>
+			</form>
+			<br><hr class="tabLine"><br><br>
+			</div></td>
+			</tr>
+			
+			
+			
+			</table>
+			<br>
+			<center>
+			<a href="page/popup.php?type=cloudbreak" target="_blank">Show last 7 day's Cloud Breaks</a>
+			</center>
+            </div>            
+
+			
+        </p>
+    </li>
+
+
+	<!--                     Preferences tab             -->
+	
+    <li id="tab2">
+        <p>
+            <div class="formcontainer">
+			<form name="preferences" action="ps/preferences.php" method="POST">
+			<table>
+			<tr>
+			<td><div class="text"><?php echo $lang['PREFERENCES_FRONTPAGE_COLUMNS']; ?><br>
+			<input type="radio" name="frontpagecolumns" value="1" <?php if($user->data['frontpage_colums']==1){echo'CHECKED';} ?>/>1&nbsp
+			<input type="radio" name="frontpagecolumns" value="2" <?php if($user->data['frontpage_colums']==2){echo'CHECKED';} ?>/>2&nbsp
+			<input type="radio" name="frontpagecolumns" value="3" <?php if($user->data['frontpage_colums']==3){echo'CHECKED';} ?>/>3&nbsp
+			<input type="radio" name="frontpagecolumns" value="4" <?php if($user->data['frontpage_colums']==4){echo'CHECKED';} ?>/>4&nbsp
+			<input type="radio" name="frontpagecolumns" value="5" <?php if($user->data['frontpage_colums']==5){echo'CHECKED';} ?>/>5&nbsp<br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td><div class="text"><?php echo $lang['PREFERENCES_FRONTPAGE_CHARTSIZE']; ?><BR>
+			<input type="radio" name="frontpagechartwidth" value="600" <?php if($user->data['frontpage_chartsize']==600){echo'CHECKED';} ?>/>600&nbsp
+			<input type="radio" name="frontpagechartwidth" value="800" <?php if($user->data['frontpage_chartsize']==800){echo'CHECKED';} ?>/>800&nbsp
+			<input type="radio" name="frontpagechartwidth" value="1000" <?php if($user->data['frontpage_chartsize']==1000){echo'CHECKED';} ?>/>1000&nbsp
+			<input type="radio" name="frontpagechartwidth" value="1100" <?php if($user->data['frontpage_chartsize']==1100){echo'CHECKED';} ?>/>1100&nbsp
+			<input type="radio" name="frontpagechartwidth" value="1300" <?php if($user->data['frontpage_chartsize']==1300){echo'CHECKED';} ?>/>1300&nbspPX<br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td><div class="text"><?php echo $lang['PREFERENCES_POPUPS_COLUMNS']; ?><br>
+			<input type="radio" name="popupcolumns" value="1" <?php if($user->data['popup_columns']==1){echo'CHECKED';} ?>/>1&nbsp
+			<input type="radio" name="popupcolumns" value="2" <?php if($user->data['popup_columns']==2){echo'CHECKED';} ?>/>2&nbsp
+			<input type="radio" name="popupcolumns" value="3" <?php if($user->data['popup_columns']==3){echo'CHECKED';} ?>/>3&nbsp
+			<input type="radio" name="popupcolumns" value="4" <?php if($user->data['popup_columns']==4){echo'CHECKED';} ?>/>4&nbsp
+			<input type="radio" name="popupcolumns" value="5" <?php if($user->data['popup_columns']==5){echo'CHECKED';} ?>/>5&nbsp<br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td><div class="text"><?php echo $lang['PREFERENCES_POPUPS_CHARTSIZE']; ?><BR>
+			<input type="radio" name="popupchartwidth" value="600" <?php if($user->data['popup_chartsize']==600){echo'CHECKED';} ?>/>600&nbsp
+			<input type="radio" name="popupchartwidth" value="800" <?php if($user->data['popup_chartsize']==800){echo'CHECKED';} ?>/>800&nbsp
+			<input type="radio" name="popupchartwidth" value="900" <?php if($user->data['popup_chartsize']==900){echo'CHECKED';} ?>/>900&nbsp
+			<input type="radio" name="popupchartwidth" value="1100" <?php if($user->data['popup_chartsize']==1100){echo'CHECKED';} ?>/>1100&nbsp
+			<input type="radio" name="popupchartwidth" value="1300" <?php if($user->data['popup_chartsize']==1300){echo'CHECKED';} ?>/>1300&nbspPX<br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td><div class="text"><?php echo $lang['PREFERENCES_PAGES_CHARTSIZE']; ?><BR>
+			<input type="radio" name="pageschartwidth" value="700" <?php if($user->data['page_chartsize']==700){echo'CHECKED';} ?>/>700&nbsp
+			<input type="radio" name="pageschartwidth" value="900" <?php if($user->data['page_chartsize']==900){echo'CHECKED';} ?>/>900&nbsp
+			<input type="radio" name="pageschartwidth" value="1000" <?php if($user->data['page_chartsize']==1000){echo'CHECKED';} ?>/>1000&nbsp
+			<input type="radio" name="pageschartwidth" value="1100" <?php if($user->data['page_chartsize']==1100){echo'CHECKED';} ?>/>1100&nbsp
+			<input type="radio" name="pageschartwidth" value="1300" <?php if($user->data['page_chartsize']==1300){echo'CHECKED';} ?>/>1300&nbspPX<br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td>
+			<div class="text"><?php echo $lang['PREFERENCES_PORTFOLIO_CHARTS']; ?><BR>
+			<select name="portfolio_charts"><option value="yes" <?php if($user->data['portfolio_charts']==yes){echo'SELECTED';} ?>><?php echo $lang['PREFERENCES_PORTFOLIO_CHARTS_YES']; ?></option><option value="no" <?php if($user->data['portfolio_charts']==no){echo'SELECTED';} ?>><?php echo $lang['PREFERENCES_PORTFOLIO_CHARTS_NO']; ?></option></select>
+			</div>
+			<hr class="tabLine">
+			</td>
+			</tr>
+
+			<tr>
+			<td><div class="text"><?php echo $lang['PREFERENCES_PAGES_RANGESELECT']; ?><BR>
+			<input type="radio" name="rangeselect_charts" value="2" <?php if($user->data['rangeselect_charts']==2){echo'CHECKED';} ?>/><?php echo $lang['PREFERENCES_PAGES_2']; ?>&nbsp
+			<input type="radio" name="rangeselect_charts" value="4" <?php if($user->data['rangeselect_charts']==4){echo'CHECKED';} ?>/><?php echo $lang['PREFERENCES_PAGES_4']; ?>&nbsp
+			<input type="radio" name="rangeselect_charts" value="5" <?php if($user->data['rangeselect_charts']==5){echo'CHECKED';} ?>/><?php echo $lang['PREFERENCES_PAGES_5']; ?>&nbsp
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			</table>
+            </div>
+            <center>
+                <div class="block" id="button">
+                    <button><?php echo $lang['PREFERENCES_BUTTON']; ?></button>
+                </div>
+            </center>
+			</form>
+        </p>
+    </li>
+
+
+	<!--                     Options tab             -->
+	
+    <li id="tab3">
+        <div class="formcontainer">
+        <p>
+            <div class="formcontainer">
+            <br>    
+			<form name="options" action="ps/options.php" method="POST">
+			<table>
+			<tr>
+			<td colspan="2"><div class="text"><?php echo $lang['OPTIONS_SELECT_LANG']; ?>
+<select name="language"><option value="EN" <?php if($user->data['language']==EN){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_LANG_UK']; ?></option><option value="FR" <?php if($user->data['language']==FR){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_LANG_FR']; ?></option><option value="NL" <?php if($user->data['language']==NL){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_LANG_NL']; ?></option></select><br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td colspan="2"><div class="text"><?php echo $lang['OPTIONS_TAX']; ?>
+<select name="taxreserve"><option value="0.05" <?php if($user->data['taxreserve']==0.05){echo'SELECTED';} ?>>5</option><option value="0.1" <?php if($user->data['taxreserve']==0.1){echo'SELECTED';} ?>>10</option><option value="0.15" <?php if($user->data['taxreserve']==0.15){echo'SELECTED';} ?>>15</option><option value="0.2" <?php if($user->data['taxreserve']==0.2){echo'SELECTED';} ?>>20</option><option value="0.25" <?php if($user->data['taxreserve']==0.25){echo'SELECTED';} ?>>25</option><option value="0.3" <?php if($user->data['taxreserve']==0.3){echo'SELECTED';} ?>>30</option><option value="0.35" <?php if($user->data['taxreserve']==0.35){echo'SELECTED';} ?>>35</option><option value="0.4" <?php if($user->data['taxreserve']==0.4){echo'SELECTED';} ?>>40</option><option value="0.45" <?php if($user->data['taxreserve']==0.45){echo'SELECTED';} ?>>45</option><option value="0.5" <?php if($user->data['taxreserve']==0.5){echo'SELECTED';} ?>>50</option><option value="0.55" <?php if($user->data['taxreserve']==0.55){echo'SELECTED';} ?>>55</option><option value="0.6" <?php if($user->data['taxreserve']==0.6){echo'SELECTED';} ?>>60</option></select>%<br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td colspan="2"><div class="text"><?php echo $lang['OPTIONS_FISCAL']; ?>
+<select name="fiscal_month"><option value="01" <?php if($user->data['fiscal_month']==01){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_JANUARY']; ?></option><option value="02" <?php if($user->data['fiscal_month']==02){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_FEBRUARY']; ?></option><option value="03" <?php if($user->data['fiscal_month']==03){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_MARCH']; ?></option><option value="04" <?php if($user->data['fiscal_month']==04){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_APRIL']; ?></option><option value="05" <?php if($user->data['fiscal_month']==05){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_MAY']; ?></option><option value="06" <?php if($user->data['fiscal_month']==06){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_JUNE']; ?></option><option value="07" <?php if($user->data['fiscal_month']==07){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_JULY']; ?></option><option value="08" <?php if($user->data['fiscal_month']==08){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_AUGUST']; ?></option><option value="09" <?php if($user->data['fiscal_month']==09){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_SEPTEMBER']; ?></option><option value="10" <?php if($user->data['fiscal_month']==10){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_OCTOBER']; ?></option><option value="11" <?php if($user->data['fiscal_month']==11){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_NOVEMBER']; ?></option><option value="12" <?php if($user->data['fiscal_month']==12){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_DECEMBER']; ?></option></select><br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+
+			<td colspan="2"><div class="text"><?php echo $lang['OPTIONS_TRADESIGNALS']; ?>
+<select name="daily_trade_signals"><option value="yes" <?php if($user->data['daily_trade_signals']==yes){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_TRADESIGNALS_Y']; ?></option><option value="no" <?php if($user->data['daily_trade_signals']==no){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_TRADESIGNALS_N']; ?></option></select><br>
+			<hr class="tabLine">
+			</div></td>
+			</tr>
+			
+			<tr>
+			<td colspan="2"><div class="text"><?php echo $lang['OPTIONS_MAIL']; ?><br><?php echo $lang['OPTIONS_EVERY']; ?>
+			<select name="mail_frequency"><option value="Daily" <?php if($user->data['mail_frequency']==Daily){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_DAY']; ?></option><option value="Monday" <?php if($user->data['mail_frequency']==Monday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_MONDAY']; ?></option><option value="Tuesday" <?php if($user->data['mail_frequency']==Tuesday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_TUESDAY']; ?></option><option value="Wednesday" <?php if($user->data['mail_frequency']==Wednesday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_WEDNESDAY']; ?></option><option value="Thursday" <?php if($user->data['mail_frequency']==Thursday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_THURSDAY']; ?></option><option value="Friday" <?php if($user->data['mail_frequency']==Friday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_FRIDAY']; ?></option><option value="Saturday" <?php if($user->data['mail_frequency']==Saturday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_SATURDAY']; ?></option><option value="Sunday" <?php if($user->data['mail_frequency']==Sunday){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_SUNDAY']; ?></option><option value="Monthly" <?php if($user->data['mail_frequency']==monthly){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_MONTH']; ?></option><option value="Never" <?php if($user->data['mail_frequency']==Never){echo'SELECTED';} ?>><?php echo $lang['OPTIONS_NEVER']; ?></option></select><br>
+			</td>
+			</tr>
+			<tr>
+			<td><?php echo $lang['OPTIONS_SUBJECT']; ?></td><td><input type="text" name="mail_subject" value="<?php echo $user->data['mail_subject']; ?>" /></td>
+			</tr>
+			<tr>
+			<td style="vertical-align:top"><?php echo $lang['OPTIONS_CONTENT']; ?></td><td><TEXTAREA cols="25" rows="4" name="mail_content"><?php echo $user->data['mail_content']; ?></textarea><br /></td>
+			</tr>
+			<tr><td colspan="2">
+			<hr class="tabLine"></td>
+			</div>
+			</tr>
+			
+			</table>
+                <center>
+                    <div class="block" id="button">
+                        <button><?php echo $lang['OPTIONS_BUTTON']; ?></button>
+                    </div>
+                </center>
+				</form>
+            
+        
+		</div>
+		</p>
+		</div>
+    </li>
+                
+<!-- </ul>
+            
+</div> -->
+
+
+                
+</ul>
+            
+</div>
+
+<!-- End of Form Menu content code -->
+		
+	<?php }else{ ?>
+	
+<!-- We are NOT logged into the system (yet) -->
+
+<!-- Start of Form menu content code -->
+	<div id="tabs">
+    <ul id="tabMenu">
+		<li class="dropdown" ><a href="#tab4">?</a></li>
+	    <li class="regular"><a href="../cms/"><?php echo $lang['MENU_ABOUT']; ?></a></li>
+        <li class="dropdown"><a href="#tab1"><?php echo $lang['MENU_LOGIN']; ?></a></li>
+		<li class="message"> <?php echo showMsg()?></li>
+    </ul>
+</div>
+
+
+<div id="tabContainer">
+<ul id="tabPanes">
+<!--                     Login tab             -->
+    <li id="tab1">
+	
+        <p>
+            <div class="formcontainer">
+			<table>
+			
+			<form name="login" action="<?php echo $root_url; ?>/ps/login.php" method="post">
+			<tr>
+			<td class="tabTable" width="40"></td>
+			<td><p></p>
+				<div class="text">
+				<u><?php echo $lang['LOGIN_TITLE']; ?></u><br>
+				<br><br>
+				<label><?php echo $lang['LOGIN_USER']; ?></label>
+				<input name="username" type="text" value=""><br><br>
+				<label><?php echo $lang['LOGIN_PASSWORD']; ?></label>
+				<input name="password" type="password"><br><br>
+				<label><?php echo $lang['LOGIN_REMEMBER_ME']; ?></label>
+				<input name="auto" type="checkbox" style="display: inline-block">
+			</div></td>
+			</tr>
+			
+			
+			</table>
+            </div>            
+            <center>
+                <div class="block" id="button">
+                    <input value="<?php echo $lang['LOGIN_BUTTON']; ?>" type="submit" class="button">
+                </div>
+            </center>
+			</form>
+			<p></p>
+			<center>
+			<a href="?page=forgot-password"><?php echo $lang['LOGIN_FORGOT']; ?></a>
+			</center>
+        </p>
+    </li>
+	<!--                     Help tab             -->
+	
+    <li id="tab4">
+        <div class="formcontainer">
+        <p>
+            <div class="formcontainer">
+			<table>
+			<tr>
+			<td><div class="text">
+            <?php echo $lang['ABOUT_VERSION']; ?></div></td>
+			<td><div class="text">
+            <?php echo $version; ?></div></td>
+			</tr>
+			<tr>
+			<td><div class="text">
+            <?php echo $lang['ABOUT_AUTHOR']; ?></div></td>
+			<td><div class="text">
+            <?php echo $me; ?></div></td>
+			</tr>
+			<tr>
+			<td><div class="text">
+            <?php echo $lang['ABOUT_BLOG']; ?></div></td>
+			<td><div class="text">
+            <a href="<?php echo $blog; ?>"><?php echo $lang['ABOUT_BLOG_PAGE']; ?></a></div></td>
+			</tr>
+			<tr>
+			<td><div class="text">
+            <?php echo $lang['ABOUT_LICENSE']; ?></div></td>
+			<td><div class="text">
+            <a href="<?php echo $root_url.$license; ?>"><?php echo $lang['ABOUT_LICENSE_PAGE']; ?></a></div></td>
+			</tr>
+			<td><div class="text">
+            <?php echo $lang['ABOUT_HOSTER']; ?></div></td>
+			<td><div class="text">
+            <?php echo $lang['ABOUT_HOSTER_NAME']; ?></div></td>
+			</tr>
+			<tr>
+			<td colspan=2><br>
+			<?php echo $lang['ABOUT_TECHS']; ?>
+			</td></tr>
+			</table>
+		</div>
+		</p>
+		</div>
+    </li>
+                
+</ul>
+            
+</div>
+<!-- End of Form Menu content code -->
+
+	<?php } ?>
+	
+	

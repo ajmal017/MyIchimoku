@@ -1,0 +1,243 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+
+
+?>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript">
+$(function() {
+	$.getJSON('http://www.highcharts.com/samples/data/jsonp.php?filename=aapl-ohlcv.json&callback=?', function(data) {
+
+		
+		// split the data set into ohlc and volume
+		var ohlc = [],
+			volume = [],
+			dataLength = data.length;
+			
+		for (i = 0; i < dataLength; i++) {
+			ohlc.push([
+				data[i][0], // the date
+				data[i][1], // open
+				data[i][2], // high
+				data[i][3], // low
+				data[i][4]  // close
+			]);
+			
+			volume.push([
+				data[i][0], // the date
+				data[i][5]  // the volume
+			])
+		}
+
+		// set the allowed units for data grouping
+		var groupingUnits = [[
+			'day',                          // unit name
+			[1]                             // allowed multiples
+		], [
+			'month',
+			[1, 2, 3, 4, 6]
+		]];
+
+		
+		// The following array's would need to be set in a language file rather than here
+		Highcharts.setOptions({
+			lang: {
+				months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+				weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+				shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Dec'],
+				decimalPoint: ",",
+				thousandsSep: "."
+			}
+		});
+		
+		
+		// create the chart
+		chart = new Highcharts.StockChart({
+		    chart: {
+		        renderTo: 'container',
+		        alignTicks: false,
+				width: 600,        // This needs to be set with a variable (from the preferences)
+				height: 530
+		    },
+
+			credits: {
+            enabled: false
+			},
+
+		    rangeSelector: {
+		        enabled: true,
+				selected: 1,
+				inputEnabled: false,
+				labelStyle: {
+                color: '6D869F'
+				},
+				buttonTheme: { // styles for the buttons
+					fill: 'none',
+					stroke: 'none',
+					style: {
+						color: '#039',
+
+						},
+					states: {
+						hover: {
+							fill: 'white'
+						},
+						select: {
+							fill: 'white',
+							style: {
+							color: 'black'
+							}
+						}
+					}
+				},
+		    },
+			
+		    title: {
+		        text: 'Company Name',  // This needs to be set with a variable
+				style: {
+					color: '0084D1'
+				}
+		    },
+			
+			exporting: {
+			enabled: false
+			},
+			
+		    yAxis: [{
+		        title: {
+		        text: 'Company Symbol' // This needs to be set with a variable
+		        },
+		        height: 300,
+		        lineWidth: 1
+		    }, {
+		        title: {
+		        text: 'Volume'
+		        },
+		        top: 375,
+		        height: 50,
+		        offset: 0,
+		        lineWidth: 1
+		    }],
+		    
+		    series: [{
+		        type: 'candlestick',
+		        name: 'Company Name', // This needs to be set with a variable
+				color: 'FF0000',
+                upColor: '00AE00',
+		        data: ohlc,           // This needs to be set with an array
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Tenkan-sen
+		        type: 'line',
+		        name: 'Tenkan-sen',
+				id: 'Flagline',
+				color: '0000FF',
+		        data: ohlc,           // This needs to be set with an array
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Kijun-Sen
+		        type: 'line',
+		        name: 'Kijun-Sen',
+				color: 'FF0000',
+		        data: ohlc,           // This needs to be set with an array
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Senkou Span A
+		        type: 'line',
+		        name: 'Senkou Span A',
+				color: '7DA647',
+		        data: ohlc,           // This needs to be set with an array
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Senkou Span B
+		        type: 'line',
+		        name: 'Senkou Span B',
+				color: 'B84747',
+		        data: ohlc,           // This needs to be set with an array
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Chikou Span
+		        type: 'line',
+		        name: 'Chikou Span',
+				color: '00AE00',
+		        data: ohlc,           // This needs to be set with an array
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the StopLoss Flag
+		        type: 'flags',
+		        name: 'StopLoss',
+				color: '0000FF',
+		        data: [{
+					x : Date.UTC(2012, 2, 25), // This needs to be set to yesterday's date
+					title : 'S/L',
+					text : 'StopLoss order to be set to "variable"'
+					// This needs to be calculated with a variable from the MoneyManagement settings
+				}],
+				onSeries : 'Flagline',
+				shape : 'circlepin',
+				width : 20
+		    },{
+			// this is the Free Trade Flag
+		        type: 'flags',
+		        name: 'Freetrade',
+				color: '0000FF',
+		        data: [{
+					x : Date.UTC(2012, 1, 25), // This needs to be set to the date the free trade occured (from the portfolio)
+					title : 'FT',
+					text : 'This is a Free Trade at "FreeTrade Price":-)'
+					// This needs to be set with data from the portfolio
+				}],
+				onSeries : 'Flagline',
+				shape : 'circlepin',
+				width : 20
+		    },{
+			// this is the Trade Entry Flag
+		        type: 'flags',
+		        name: 'Trade Entry',
+				color: '0000FF',
+		        data: [{
+					x : Date.UTC(2011, 12, 25), // This needs to be set to the date the trade was entered (from the portfolio)
+					title : '€',
+					text : 'Trade Entry at "EntryPrice"'
+					// This needs to be set with data from the portfolio
+				}],
+				onSeries : 'Flagline',
+				shape : 'circlepin',
+				width : 20
+		    },{
+		        type: 'column',
+		        name: 'Volume',
+				color: '0084D1',
+		        data: volume,         // This needs to be set with an array
+		        yAxis: 1,
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    }]
+		});
+	});
+});
+		</script>
+

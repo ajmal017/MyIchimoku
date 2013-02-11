@@ -1,0 +1,134 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="shortcut icon" type="image/x-icon" href="images/favicon2.ico">
+<title><?php echo $lang['PAGE_TITLE']; ?></title>
+<link rel="stylesheet" href="<?php echo $root_url; ?>/css/stylesheet.css" type="text/css">
+<?php 
+          /*   ***   Do not modify the three lines below please   ***   */ 
+?>
+<meta name="identifier-url" content="http://myichimoku.eu">
+<meta name="author" content="Oscar Buijten">
+<meta name="copyright" content="© 2012 - Creative Commons Attribution-NonCommercial 3.0 Unported">
+
+<!-- Start of Form Menu header code -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+
+<!--
+<script type='text/javascript' src='http://code.jquery.com/jquery-1.4.2.js'></script> -->
+<script type='text/javascript' src='<?php echo $root_url; ?>/js/formbox.js'></script>
+<link rel="stylesheet" type="text/css" href="<?php echo $root_url; ?>/css/menustyle.css" /> 
+<!-- End of Form Menu header code -->
+
+<!-- Start of Tabber header code -->
+<script type="text/javascript" src="<?php echo $root_url; ?>/js/tabber.js"></script>
+<link rel="stylesheet" href="<?php echo $root_url; ?>/css/tabber.css" TYPE="text/css" MEDIA="screen">
+<script type="text/javascript">
+/* Optional: Temporarily hide the "tabber" class so it does not "flash" on the page as plain HTML.
+   After tabber runs, the class is changed to "tabberlive" and it will appear. */
+document.write('<style type="text/css">.tabber{display:none;}<\/style>');
+</script>
+<!-- End of Tabber header code -->
+	
+<!-- Start of the Autocomplete code  -->
+
+<!-- <script type="text/javascript" src="<?php echo $root_url; ?>/js/jquery/jquery-ui-1.8.21.custom.min.js"></script>-->
+
+
+
+
+<script type="text/javascript">
+	function lookup(inputString) {
+		if(inputString.length == 0) {
+			// Hide the suggestion box.
+			$('#suggestions').hide();
+		} else {
+			$.post("rpc.php", {queryString: ""+inputString+""}, function(data){
+				if(data.length >0) {
+					$('#suggestions').show();
+					$('#autoSuggestionsList').html(data);
+				}
+			});
+		}
+	} // lookup
+	
+	function fill(thisValue) {
+		$('#inputString').val(thisValue);
+		setTimeout("$('#suggestions').hide();", 200);
+		$('#inputString').focus();
+	}
+
+</script> 
+
+<script type="text/javascript">
+var c=0;
+var t;
+var myTimer;
+function timedCount()
+{
+document.getElementById('txt').value=c
+c=c+1
+t=setTimeout("timedCount()",50)
+}
+
+function stopCount()
+{
+clearTimeout(t)
+}
+
+</script>
+
+<!-- End of the Autocomplete code  -->
+<!-- Chart popups -->
+<head>
+<script type="text/javascript">
+function popup_portfolio()
+{
+window.open("<?php echo $root_url; ?>/page/popup.php?type=portfolio", "_blank")
+}
+function popup_favorites()
+{
+window.open("<?php echo $root_url; ?>/page/popup.php?type=favorites")
+}
+</script>
+<!-- End Chart popups -->
+
+
+
+<?php 
+if ($page == 'searchresult') {
+	include ("ps/prepareMyIchiData.php");
+	include ("highstockheader.html");
+	} 
+if ($page == 'portfolio') {
+	include ("portfolioheader.html");
+}
+if ($page == 'tradingplan') {
+	include ("tradingplanheader.html");
+}
+if ($page == 'account') {
+	include ("accountheader.html");
+}
+if ($page == 'home') {
+	include ("homeheader.html");
+}
+?>
+
+
+
+</head>

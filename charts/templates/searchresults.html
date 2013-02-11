@@ -1,0 +1,170 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+
+if ($emptysearch == 1) 
+{ 
+?> 
+<p></p><p></p><p></p><center><?php echo $lang['SEARCHRESULTS_NO_RESULTS']; ?></center>
+<?php
+}
+else
+{ 
+if($user->data['page_chartsize'] > 900) {$a=1;} 
+?>
+
+<center>
+<table><tr>
+<td<?php if ($a==1) {echo "colspan='3'";}?>>
+
+<!-- These four lines show the chart -->
+<script src="http://www.myichimoku.eu/charts/js/highstock.js"></script>
+<script src="http://www.myichimoku.eu/charts/js/highcharts-more.js"></script>
+<div id="info"></div>
+<div id="container"></div>
+
+
+</td>
+<?php if ($a==1) {echo "</tr><tr>";}?>
+
+<td style="vertical-align:top">
+<center>
+<?php if ($a==1) {echo "";} else {echo "<br><br><br><br>";}?>
+
+<table><tr><td>
+<button class="button" id="toggle-ichimokuSignal"><?php echo $lang['SEARCHRESULTS_CHART_BUTTON']; ?></button>
+</td>
+<?php if ($user->data['backtrading']==no) { echo "
+<td>
+<form method='post' action='?page=searchresult' id='my_form'>
+<input type='hidden' name='yahoo_symbol' value='".$symbol."'>
+<input type='hidden' name='chartsize' value='".$user->data['page_chartsize']."'>
+<input type='hidden' name='backtrade' value='yes'>
+<a href=\"javascript:{}\" onclick=\"document.getElementById('my_form').submit(); return false;\"><button class='button'>".$lang['SEARCHRESULTS_BACKTRADE']."</button></a>
+</form>
+</td>"; } ?>
+
+</tr></table>
+<?php if ($a==1) {echo "<br>";} else {echo "<br><br><br>";}?>
+<table class="searchresulttable">
+<thead><tr>
+<th width="60"><?php echo $lang['SEARCHRESULTS_SYMBOL']; ?></th>
+<th width="200"><?php echo $lang['SEARCHRESULTS_NAME']; ?></th>
+<th width="60"><?php echo $lang['SEARCHRESULTS_PRICE']; ?></th>
+<th width="80"><?php echo $lang['SEARCHRESULTS_ACTION']; ?></th>
+</tr></thead>
+
+<tbody>
+<tr>
+<td class="odd"><?php echo $searchSymbolSymbol; ?></td>
+<td><?php echo $searchSymbolName; ?></td>
+<td><?php echo $searchSymbolPrice; ?></td>
+<td>
+<?php if ($favoyes==0) { ?>
+<a href="ps/portfolio_add.php?yahoo_symbol=<?php echo $searchSymbolSymbol; ?>&added_price=<?php echo $searchSymbolPrice; ?>&type=favorites&action=add" title= "<?php echo $lang['SEARCHRESULTS_ADD_FAVORITES']; ?>"><img src="../charts/images/star.png" border="0"></a>
+<?php }
+else { ?>
+<img src="../charts/images/star_yellow.png" border="0" title= "<?php echo $lang['SEARCHRESULTS_IN_FAVORITES']; ?>">
+<?php } ?>
+
+<?php if ($portfyes==0) { ?>
+<a href="ps/portfolio_add.php?yahoo_symbol=<?php echo $searchSymbolSymbol; ?>&added_price=<?php echo $searchSymbolPrice; ?>&type=portfolio&action=add" title= "<?php echo $lang['SEARCHRESULTS_ADD_PORTFOLIO']; ?>"><img src="../charts/images/cart.png" border="0"></a>
+<?php }
+else { ?>
+<img src="../charts/images/cart_yellow.png" border="0" title= "<?php echo $lang['SEARCHRESULTS_IN_PORTFOLIO']; ?>">
+<?php } ?>
+<?php if ($favoyes==1) { ?>
+<a href="ps/portfolio_add.php?yahoo_symbol=<?php echo $searchSymbolSymbol; ?>&type=favorites&action=remove" title= "<?php echo $lang['SEARCHRESULTS_REMOVE']; ?>" onclick="return confirm('<?php echo $lang['SEARCHRESULTS_CONF_REMOVE']; ?>');"><img src="../charts/images/bin.png" border="0"></a>
+<?php } ?>
+
+</td>
+</tr>
+<tr>
+<td colspan="2" title="<?php echo $lang['SEARCHRESULTS_SIGNAL_INFO']; ?>">
+<?php echo $lang['SEARCHRESULTS_SIGNAL']; ?>
+</td>
+<?php
+$query = mysql_query("SELECT ichimoku_signal FROM myichi_historical_data WHERE yahoo_symbol='$searchSymbolSymbol' AND open<>'NULL' ORDER BY symbol_period DESC LIMIT 1");
+						if (!$query) { echo 'Impossible d\'exécuter la requête : ' . mysql_error(); exit; }
+					$symbolperiodrow     = mysql_fetch_assoc($query);
+					$ichimoku_signal        = ($symbolperiodrow["ichimoku_signal"]);
+?>
+<td title="<?php echo $lang['SEARCHRESULTS_SIGNAL_INFO']; ?>"><?php echo $ichimoku_signal; ?>
+</td>
+<td>
+</td>
+
+</tr>
+
+</tbody></table>
+<?php if ($a==1) {echo "</td><td width='30'></td><td style='vertical-align:top'><br>";} else {echo "<br><br>";}?>
+
+
+<!-- This table to be used to show some additional information about the instrument / company -->
+
+<table class="summarytable"><caption><?php echo $lang['SEARCHRESULTS_DETAILS']; ?><br><br></caption>
+<thead><tr>
+<th width="100"></th>
+<th width="100"></th>
+<th width="10"></th>
+<th width="100"></th>
+<th width="75"></th></tr></thead>
+
+<tbody>
+<tr>
+<th class="odd">Year High:</th>
+<th><?php echo $searchSymbolYearHigh; ?></th>
+<th>&nbsp</th>
+<th>Year Low:</th>
+<th><?php echo $searchSymbolYearLow; ?></th></tr>
+
+
+<th>Change:</th>
+<th><?php echo $searchSymbolChangeFromYearHigh; ?></th>
+<th></th>
+<th>Change:</th>
+<th><?php echo $searchSymbolChangeFromYearLow; ?></th></tr>
+ 
+
+<th>Percentage:</th>
+<th><?php echo $searchSymbolPercentChangeFromYearHigh; ?></th>
+<th></th>
+<th>Percentage:</th>
+<th><?php echo $searchSymbolPercentChangeFromYearLow; ?></th></tr>
+
+
+<th>EBITDA:</th>
+<th><?php echo $searchSymbolEBITDA; ?></th>
+<th></th>
+<th>Market Cap:</th>
+<th><?php echo $searchSymbolMarketCapitalization; ?></th></tr>
+ 
+<th>Exchange:</th>
+<th><?php echo $searchSymbolExchange; ?></th>
+<th></th>
+
+<?php
+	// Average daily volume verification
+	if ($searchSymbolAverageDailyVolume > $user->data['min_volume_instrument']) { $VolumeOKnotOK = "<font color='green' size='0.1'>V > ".($user->data['min_volume_instrument']/1000)."k</font>";} else { $VolumeOKnotOK = "<font color='red' size='0.1'>V < ".($user->data['min_volume_instrument']/1000)."k</font>";}
+?>
+<th>Av. Vol:</th>
+<th><?php echo $searchSymbolAverageDailyVolume."<br>".$VolumeOKnotOK; ?></th></tr>
+
+</tbody></table>
+<?php if ($a==1) {echo "</td></tr>";}?>
+</center>
+
+</td>
+
+</tr></table>
+</center>
+<?php } ?>

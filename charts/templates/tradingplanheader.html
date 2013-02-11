@@ -1,0 +1,106 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+
+$uid    = $user->data['user_id'];
+
+?>
+
+	
+<link type="text/css" href="css/flick/jquery-ui-1.8.21.custom.css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.8.21.custom.min.js"></script>
+<script src="js/jquery/jquery.jeditable.js" type="text/javascript" charset="utf-8"></script>
+<script src="js/jquery/jquery.jeditable.datepicker.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="includes/js/jquery.form.js"></script>
+
+
+
+		<script type="text/javascript">
+				$(document).ready(function() {
+				$('.edit').editable('ps/tradingplan_update.php');
+				
+				$('.edit_area').editable('ps/tradingplan_update.php', { 
+					type      : 'textarea',
+					rows	  : '3',
+					onblur    : 'submit'
+				});
+				
+				$('.datepicker').editable('ps/tradingplan_update.php', {
+						type: 'datepicker',
+						datepicker: {
+						dateFormat: 'yy-mm-dd' 
+						}
+				} );
+
+			});
+		</script>
+		
+  <script type="text/javascript">
+  $(document).ready(function() {
+    $('#tradplan_l').ajaxForm({
+      target: '#showdata',
+      success: function() {
+        $('#showdata').fadeIn('slow');
+      }
+    });
+  });
+  
+    $(document).ready(function() {
+    $('#tradplan_r').ajaxForm({
+      target: '#showdata',
+      success: function() {
+        $('#showdata').fadeIn('slow');
+      }
+    });
+  });
+  
+      $(document).ready(function() {
+    $('#entryrules_bull').ajaxForm({
+      target: '#showdata',
+      success: function() {
+        $('#showdata').fadeIn('slow');
+      }
+    });
+  });
+  
+      $(document).ready(function() {
+    $('#entryrules_bear').ajaxForm({
+      target: '#showdata',
+      success: function() {
+        $('#showdata').fadeIn('slow');
+      }
+    });
+  });
+  
+        $(document).ready(function() {
+    $('#money_bull').ajaxForm({
+      target: '#showdata',
+      success: function() {
+        $('#showdata').fadeIn('slow');
+      }
+    });
+  });
+  
+        $(document).ready(function() {
+    $('#money_bear').ajaxForm({
+      target: '#showdata',
+      success: function() {
+        $('#showdata').fadeIn('slow');
+      }
+    });
+  });
+  </script>
+
+
+
+

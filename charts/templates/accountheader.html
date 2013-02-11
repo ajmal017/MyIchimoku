@@ -1,0 +1,50 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+<link type="text/css" href="css/flick/jquery-ui-1.8.21.custom.css" rel="stylesheet" />
+<script type="text/javascript" src="js/jquery/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/jquery/jquery-ui-1.8.21.custom.min.js"></script>
+<script src="js/jquery/jquery.jeditable.js" type="text/javascript" charset="utf-8"></script>
+
+
+		<script type="text/javascript">
+
+				$(document).ready(function() {
+				$('.edit').editable('ps/account_update.php');
+				
+				$('.select').editable('ps/account_update.php', {
+					data	  : " {'yes':'Yes','no':'No'}",
+					type      : 'select',
+					onblur    : 'submit'
+				});
+				
+				$('.select_min_ichimoku_signal').editable('ps/account_update.php', {
+					data	  : " {'4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','10':'10','11':'11','12':'12','13':'13'}",
+					type      : 'select',
+					onblur    : 'submit'
+				});
+
+				$('.select_period').editable('ps/account_update.php', {
+					data	  : " {'1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9','10':'10','11':'11','12':'12','13':'13','14':'14','15':'15','16':'16','17':'17','18':'18','19':'19','20':'20'}",
+					type      : 'select',
+					onblur    : 'submit'
+				});
+
+				$('.select_min_cloudbreak_signal').editable('ps/account_update.php', {
+					data	  : " {'4':'4','5':'5','6':'6','7':'7','8':'8','9':'9'}",
+					type      : 'select',
+					onblur    : 'submit'
+				});
+				
+			});
+		</script>

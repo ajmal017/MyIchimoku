@@ -1,0 +1,238 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+
+
+?>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript">
+$(function() {
+
+		// set the allowed units for data grouping
+		var groupingUnits = [[
+			'day',                          // unit name
+			[1]                             // allowed multiples
+		], [
+			'month',
+			[1, 2, 3, 4, 6]
+		]];
+
+		
+		// The following array's would need to be set in a language file rather than here
+		Highcharts.setOptions({
+			lang: {
+				months: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+				weekdays: ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'],
+				shortMonths: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Dec'],
+				decimalPoint: ",",
+				thousandsSep: "."
+			}
+		});
+		
+		
+		// create the chart
+		chart = new Highcharts.StockChart({
+		    chart: {
+		        renderTo: 'container',
+		        alignTicks: false,
+				width: 600,        // This needs to be set with a variable (from the preferences)
+				height: 530
+		    },
+
+			credits: {
+            enabled: false
+			},
+
+		    rangeSelector: {
+		        enabled: true,
+				selected: 1,
+				inputEnabled: false,
+				labelStyle: {
+                color: '6D869F'
+				},
+				buttonTheme: { // styles for the buttons
+					fill: 'none',
+					stroke: 'none',
+					style: {
+						color: '#039',
+
+						},
+					states: {
+						hover: {
+							fill: 'white'
+						},
+						select: {
+							fill: 'white',
+							style: {
+							color: 'black'
+							}
+						}
+					}
+				},
+		    },
+			
+		    title: {
+		        text: 'Company Name',  // This needs to be set with a variable
+				style: {
+					color: '0084D1'
+				}
+		    },
+			
+			exporting: {
+			enabled: false
+			},
+			
+		    yAxis: [{
+		        title: {
+		        text: 'Company Symbol' // This needs to be set with a variable
+		        },
+		        height: 300,
+		        lineWidth: 1
+		    }, {
+		        title: {
+		        text: 'Volume'
+		        },
+		        top: 375,
+		        height: 50,
+		        offset: 0,
+		        lineWidth: 1
+		    }],
+		    
+            series : [{
+                name : 'AAPL',
+                type: 'candlestick',
+                data : ([
+[1317888000000,372.5101,375,372.2,372.52],
+[1317888060000,372.4,373,372.01,372.16],
+[1317888120000,372.16,372.4,371.39,371.62],
+[1317888180000,371.62,372.16,371.55,371.75],
+[1317888240000,371.75,372.4,371.57,372],
+[1317888300000,372,372.3,371.8,372.24],
+[1317888360000,372.22,372.45,372.22,372.3],
+[1317888420000,372.3,373.25,372.3,373.15],
+[1317888480000,373.01,373.5,373,373.24],
+[1317888540000,373.36,373.88,373.19,373.88],
+[1317888600000,373.8,374.34,373.75,374.29],
+[1317888660000,374.29,374.43,374,374.01],
+[1317888720000,374.05,374.35,373.76,374.35],
+[1317888780000,374.41,375.24,374.37,374.9],
+[1317888840000,374.83,375.73,374.81,374.96],
+[1317888900000,374.81,375.4,374.81,375.25],
+[1317888960000,375.2,375.7,375.14,375.19],
+[1317889020000,375.43,375.43,374.75,374.76],
+[1317889080000,374.94,375.5,374.81,375.13]]),
+                tooltip: {
+                    valueDecimals: 2
+                }
+            },{
+			// this is the Tenkan-sen
+		        type: 'line',
+		        name: 'Tenkan-sen',
+				id: 'Flagline',
+				color: '0000FF',
+		        data: ohlc,
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Kijun-Sen
+		        type: 'line',
+		        name: 'Kijun-Sen',
+				color: 'FF0000',
+		        data: ohlc,         
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Senkou Span A
+		        type: 'line',
+		        name: 'Senkou Span A',
+				color: '7DA647',
+		        data: ohlc,      
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Senkou Span B
+		        type: 'line',
+		        name: 'Senkou Span B',
+				color: 'B84747',
+		        data: ohlc,    
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the Chikou Span
+		        type: 'line',
+		        name: 'Chikou Span',
+				color: '00AE00',
+		        data: ohlc,  
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },{
+			// this is the StopLoss Flag
+		        type: 'flags',
+		        name: 'StopLoss',
+				color: '0000FF',
+		        data: [{
+					x : Date.UTC(2012, 2, 25), 
+					title : 'S/L',
+					text : 'StopLoss order to be set to "variable"'
+					
+				}],
+				onSeries : 'Flagline',
+				shape : 'circlepin',
+				width : 20
+		    },{
+			// this is the Free Trade Flag
+		        type: 'flags',
+		        name: 'Freetrade',
+				color: '0000FF',
+		        data: [{
+					x : Date.UTC(2012, 1, 25), // This needs to be set to the date the free trade occured (from the portfolio)
+					title : 'FT',
+					text : 'This is a Free Trade at "FreeTrade Price":-)'
+					// This needs to be set with data from the portfolio
+				}],
+				onSeries : 'Flagline',
+				shape : 'circlepin',
+				width : 20
+		    },{
+			// this is the Trade Entry Flag
+		        type: 'flags',
+		        name: 'Trade Entry',
+				color: '0000FF',
+		        data: [{
+					x : Date.UTC(2011, 12, 25), // This needs to be set to the date the trade was entered (from the portfolio)
+					title : '€',
+					text : 'Trade Entry at "EntryPrice"'
+					// This needs to be set with data from the portfolio
+				}],
+				onSeries : 'Flagline',
+				shape : 'circlepin',
+				width : 20
+		    },{
+		        type: 'column',
+		        name: 'Volume',
+				color: '0084D1',
+		        data: volume,         // This needs to be set with an array
+		        yAxis: 1,
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    }]
+		});
+
+});
+		</script>
+

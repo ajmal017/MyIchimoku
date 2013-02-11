@@ -1,0 +1,281 @@
+body { color: #000000;
+       background-color: #fff;
+       font-size: 10pt;
+       font-family: Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";
+       margin: 10; }
+	   
+
+a 				{color: #09f; text-decoration: none; border-bottom: 0px solid;}
+a:visited 		{color: #c3c; font-weight: normal;}
+a:hover 			{border-bottom: 1px; border-bottom-style: dotted;}
+
+.title 		{font-weight: bold; font-size: 12pt; line-height:normal; text-align: left; vertical-align: middle; color:#636363;}
+
+.subtitle      {font: 88%/1.5em Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans"; line-height:normal; text-align: left; vertical-align: middle; color:#636363;}
+
+.button {
+	background-color:#0099FF;
+	display:inline-block;
+	color:#ffffff;
+	font-family:Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";
+	font-size:12px;
+	font-weight:normal;
+	padding:6px 20px;
+	text-decoration:none;
+	border: 1px solid #ffffff;
+}
+.button:hover {
+	border: 1px solid #636363;
+}
+.button:active {
+	position:relative;
+	top:2px;
+}
+.button:visited {
+	color:#ffffff;
+}
+   
+/* List Table */
+.listtable  {
+	font: 88%/1.5em Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";  
+	border-spacing: 0; 
+	border-collapse: separate; 
+	margin: 0 0 0 0; 
+	color:#636363;}
+
+.listtable a 				{color: #09f; text-decoration: none; border-bottom: 0px solid;}
+.listtable a:visited 		{color: #c3c; font-weight: normal;}
+.listtable a:hover 			{border-bottom: 1px; border-bottom-style: dotted;}
+
+.listtable thead th,
+.listtable thead td			{font-weight: bold; line-height:normal; text-align: left; border-bottom: 0.2em solid #09f;}
+
+.listtable tfoot th, tfoot td		{text-align: left; border-top: 0em solid #09f; font-weight: bold}
+.listtable th, td 			{padding: 0.25em;}
+
+.listtable tbody th, td		{text-align: left; vertical-align: bottom;}
+.listtable tbody th			{font-weight: normal; white-space: nowrap;}
+.listtable tbody th a:link,
+.listtable tbody th a:visited 	{font-weight: normal;}
+
+.listtable tbody th + td		{white-space: nowrap;}
+.listtable tbody td,
+.listtable tbody th 			{border: 1px solid #fff; border-width: 1px 0;}
+
+.listtable tbody tr.odd th,
+.listtable tbody tr.odd td 		{border-color: #E8E8E8; background: #F8F8F8;}
+
+.listtable tbody tr:hover td,
+.listtable tbody tr:hover th 	{background: #FFFFCF;}
+.listtable caption 			{font-weight: bold; font-size: 1.3em; text-align: left; margin: 0; padding: 0.5em 0.25em;}
+
+
+
+/* Summary Table */
+.summarytable  {
+	font: 88%/1.5em Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";  
+	border-spacing: 0; 
+	border-collapse: separate; 
+	margin: 0 0 1em 0; 
+	color:#636363;}
+	
+.summarytable a 					{color: #09f; text-decoration: none; border-bottom: 0px solid;}
+.summarytable a:visited 			{color: #c3c; font-weight: normal;}
+.summarytable a:hover 			{border-bottom: 1px; border-bottom-style: dotted;}
+
+.summarytable thead th,
+.summarytable thead td			{font-weight: bold; line-height:normal; text-align: left; border-bottom: 0.2em solid #09f;}
+
+.summarytable tfoot th, tfoot td		{text-align: left; border-top: 0em solid #09f; font-weight: bold}
+.summarytable th, td 				{padding: 0.25em;}
+
+.summarytable tbody th, td			{text-align: left; vertical-align: top;}
+.summarytable tbody th			{font-weight: normal; white-space: nowrap;}
+.summarytable tbody th a:link,
+.summarytable tbody th a:visited 	{font-weight: normal;}
+
+.summarytable tbody th + td		{white-space: nowrap;}
+.summarytable tbody td,
+.summarytable tbody th 			{border: 1px solid #fff; border-width: 1px 0;}
+
+.summarytable tbody tr.odd th, 
+.summarytable tbody tr.odd td 		{border-color: #E8E8E8; background: #F8F8F8;}
+
+.summarytable tbody tr:hover td,
+.summarytable tbody tr:hover th 	{background: #FFFFCF;}
+.summarytable caption 				{font-weight: bold; font-size: 1.3em; text-align: left; margin: 0; padding: 0.5em 0.25em;}
+
+
+/* Search Result Table */
+.searchresulttable  {
+	font: 88%/1.5em Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";  
+	border-spacing: 0; 
+	border-collapse: separate; 
+	margin: 0 0 1em 0; 
+	color:#636363;}
+	
+.searchresulttable a 				{color: #09f; text-decoration: none; border-bottom: 0px solid;}
+.searchresulttable a:visited 		{color: #c3c; font-weight: normal;}
+.searchresulttable a:hover 			{border-bottom: 1px; border-bottom-style: dotted;}
+
+.searchresulttable thead th,
+.searchresulttable thead td			{font-weight: bold; line-height:normal; text-align: left; border-bottom: 0.2em solid #09f;}
+
+.searchresulttable tfoot th, tfoot td		{text-align: left; border-top: 0em solid #09f; font-weight: bold}
+.searchresulttable th, td 			{padding: 0.25em;}
+
+.searchresulttable tbody th, td		{text-align: left; vertical-align: middle;}
+.searchresulttable tbody th			{font-weight: normal; white-space: nowrap;}
+.searchresulttable tbody th a:link,
+.searchresulttable tbody th a:visited 	{font-weight: normal;}
+
+.searchresulttable tbody th + td		{white-space: nowrap;}
+.searchresulttable tbody td,
+.searchresulttable tbody th 			{border: 1px solid #fff; border-width: 1px 0;}
+
+.searchresulttable tbody tr.odd th, 
+.searchresulttable tbody tr.odd td 		{border-color: #E8E8E8; background: #F8F8F8;}
+
+.searchresulttable tbody tr, td		{font-weight: normal; line-height:normal; text-align: left; vertical-align: middle;}
+
+.searchresulttable tbody tr:hover td,
+.searchresulttable tbody tr:hover th 	{background: #FFFFCF;}
+.searchresulttable caption 			{font-weight: bold; font-size: 1.3em; text-align: left; margin: 0; padding: 0.5em 0.25em;}
+
+
+/* Start Portfolio */
+.portfolio  {
+	font: Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";  
+	border-spacing: 0; 
+	border-collapse: separate; 
+	margin: 0 0 0 0; 
+	color:#636363;}
+	
+.portfolio thead th,
+.Portfolio thead td			{font-weight: bold; line-height:normal; text-align: left; border-bottom: 0.2em solid #09f;}
+
+.portfolio tfoot th, tfoot td		{text-align: left; border-top: 0em solid #09f; font-weight: bold}
+.portfolio th, td 			{padding: 0}
+
+.portfolio tbody th + td		{white-space: nowrap;}
+.portfolio tbody td,
+.portfolio tbody th 			{border: 1px solid #fff; border-width: 1px 0;}
+
+.portfolio tbody tr.odd th, 
+.portfolio tbody tr.odd td 		{border-color: #E8E8E8; background: #F8F8F8;}
+
+.portfolio caption 			{font-weight: bold; font-size: 1.3em; text-align: left; margin: 0;}
+
+
+/* collapsed row */
+.collaps {
+	font: Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans"; 
+	border-spacing: 0; 
+ 	border-collapse: separate; 
+	margin: 0 0 0 0; 
+	color:#636363;
+	height: 100%;
+    width: 100%;
+    margin:0px;
+    padding:0px;}
+
+.collaps a 				{color: #09f; text-decoration: none; border-bottom: 0px solid;}
+.collaps a:visited 		{color: #c3c; font-weight: normal;}
+
+.collaps thead thead th th, td td		{text-align: left; vertical-align: top; font-weight: normal;}
+.collaps thead thead th th, td td		{font-weight: normal; white-space: nowrap;}
+
+.collaps thead thead th th + td td		{white-space: nowrap;}
+
+
+
+/* expanded row */
+.expand {
+	font: Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";  
+	border-spacing: 0; 
+	border-collapse: separate; 
+	margin: 0 0 0 0; 
+	color:#636363;
+	height: 100%;
+    width: 100%;
+    margin:0px;
+    padding:0px;}
+
+.expand tbody tbody th th, td td		{text-align: left; vertical-align: top; font-weight: normal;}
+.expand tbody tbody th th		{font-weight: normal; white-space: nowrap;}
+
+.expand tbody tbody th th + td td		{white-space: nowrap;}
+
+
+
+/* End Portfolio */
+
+/* Page footer */
+
+.footer 		{font-weight: normal; line-height:normal; text-align: right; vertical-align: middle; color:#636363;}
+.footer img 				{float:left; margin: 0em 0em 0em 0em; border:none; position: relative; bottom: 0px;}
+
+
+/* Autocomplete Searchbox */
+
+/*
+.suggestionsBox {
+	position: relative;
+	left: 30px;
+	margin: 10px 0px 0px 0px;
+	width: 500px;
+	background-color: #FFFFFF;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border: 1px solid #0099FF;
+	color: #fff;
+	} */
+	
+.suggestionsBox {
+    z-index: 99999;
+	position: relative;
+    margin-top:-1px;
+	width: 600px;
+    height:450px;
+    margin-left:600px;
+    background-color:#ffffff; 
+    border: 1px solid #0099FF;   
+     -moz-border-radius-bottomright: 5px;
+     -moz-border-radius-bottomleft: 5px;
+     -webkit-border-bottom-right-radius:5px;
+     -webkit-border-bottom-left-radius:5px;
+	 -webkit-box-shadow: 0px 3px 4px rgba(0,0,0,0.6);
+     -moz-box-shadow: 0px 3px 4px ;
+     box-shadow: 0px 3px 4px ; 
+	}
+.suggestionList {
+	margin: 0px;
+	padding: 0px;
+	}
+	
+.suggestionList li {
+	font: 88%/1.5em Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";
+	color:#636363;
+	margin: 0px 0px 3px 0px;
+	padding: 3px;
+	cursor: pointer;
+	}
+	
+.suggestionList li:hover {
+	background-color: #0099FF;
+	color:#DEDEDE;
+	}
+
+/* End Autocomplete Searchbox */
+
+.input {
+    font: 100%/1.5em Verdana, Helvetica, sans-serif, "Trebuchet MS", "Bitstream Vera Sans";
+	color:#636363;
+	border: 0px #006;
+	width:30px;
+	}
+	
+.input:hover {
+    background: #ffc;
+	}
+	

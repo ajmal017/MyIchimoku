@@ -1,0 +1,603 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		<script type="text/javascript">
+$(function() {
+var $info = $('#info');
+		// set the allowed units for data grouping
+		var groupingUnits = [[
+			'day',                          // unit name
+			[1]                             // allowed multiples
+		], [
+			'month',
+			[1, 2, 3, 4, 6]
+		]];
+				
+				Highcharts.setOptions({
+			lang: {
+				months: <?php echo $lang['MONTHS']; ?>,
+				weekdays: <?php echo $lang['WEEK_DAYS']; ?>,
+				shortMonths: <?php echo $lang['SHRT_MNTHS']; ?>,
+				decimalPoint: "<?php echo $lang['DECIMAL_POINT']; ?>",
+				thousandsSep: "<?php echo $lang['Ks_SEP']; ?>"
+			}
+
+		});
+		
+		// create the chart
+		chart = new Highcharts.StockChart({
+		    chart: {
+		        renderTo: 'container',
+		        alignTicks: false,
+				width: <?php echo $chartsize; ?>,
+				height: 600
+		    },
+
+			credits: {
+            enabled: false
+			},
+			
+
+		    title: {
+		        text: '<?php echo $instr_name; ?>',  
+				style: {
+					color: '#0084D1'
+				}
+		    },
+			
+			navigator : {
+				enabled : true
+			},			
+			
+			scrollbar : {
+				enabled : false
+			},
+			
+			exporting: {
+			enabled: false
+			},
+				yAxis: [{
+		        title: {
+		        text: '<?php echo $symbol; ?>' 
+		        },
+		        height: 420,
+		        lineWidth: 1
+				
+			// begin StopLoss
+			<?php
+			$today = date("Y-m-d");
+				// Firts we create the suggested StopLoss
+				echo ",		
+							plotLines: [";
+				$sl_query = mysql_query("
+					SELECT i.symbol AS symbol, i.entry_price AS entryPrice, h.tenkan_sen AS tenkan, h.kijun_sen AS kijun, h.close AS price, h.date AS date, i.entry_date AS entrydate
+					FROM myichi_historical_data AS h
+					LEFT JOIN myichi_portfolio AS i ON h.yahoo_symbol = i.symbol
+					WHERE (i.user_id = $uID
+					AND i.entry_date >0
+					AND i.symbol = '$symbol'
+					AND i.type = 'portfolio'
+					AND date < '$today'
+					AND h.tenkan_sen >0
+					)
+					ORDER BY date DESC 
+					LIMIT 1");				
+								if (!$sl_query) { echo 'Impossible d\'exécuter la requête : ' . mysql_error();	exit; }
+				if (mysql_num_rows($sl_query)>0) {
+				while ($row = mysql_fetch_assoc($sl_query)) {
+					$entryPrice  = $row['entryPrice'];
+					$tenkan      = $row['tenkan'];
+					$kijun       = $row['kijun'];
+					$price       = $row['price'];
+					$date        = (strtotime($row['date'])*1000);
+					$entryDate   = $row['entrydate'];
+				}
+				// The base references for the SL calculation are the entryPrice and the Tenkan-Sen at the entryDate, so we go get entryTenkan here
+				$sl_query = mysql_query("
+					SELECT tenkan_sen
+					FROM myichi_historical_data
+					WHERE date='$entryDate'
+					AND yahoo_symbol = '$symbol' ");
+				if (mysql_num_rows($sl_query)>0) {
+				while ($row = mysql_fetch_assoc($sl_query)) {
+					$entryTenkan = $row['tenkan_sen'];
+					}
+				
+				// Now that we have some data we create the SL logic
+				if (($price < ($entryPrice * (1 - $user->data['profit_buffer']))) &&  ((($entryPrice * (1 - $user->data['profit_exit_alert'])) > $entryTenkan) || (($price * (1 - $user->data['profit_exit_alert'])) < $entryTenkan))) 
+					{$stoploss = round($entryPrice * (1 - $user->data['profit_exit_alert']),2);}
+					else
+					{
+						if (($price > (round($entryPrice * (1 - $user->data['profit_exit_alert']),2))) && ($price > $tenkan)) 
+						{$stoploss = round($tenkan,2);						
+						}
+						else
+						{	if ($price > ($entryPrice * (1 - $user->data['profit_buffer']))) 
+							{$stoploss = round($tenkan * (1 - $user->data['profit_exit_alert']),2);}
+						}
+					}
+					if ($stoploss < $kijun) {$stoploss = round($kijun,2);}
+				}
+				
+				echo "{
+							color: 'blue',
+							width: 1,
+							value: ".$stoploss.",
+							zIndex: 999,
+							label: {
+								text: 'Suggested StopLoss: ".$stoploss."',
+								align: 'left',
+								x: 20
+								}
+							},          
+						";	
+				}
+				
+				// Now we create the actual StopLoass order we have placed
+				$sl_query = mysql_query("
+							SELECT stoploss, entry_price
+							FROM myichi_portfolio
+							WHERE symbol = '$symbol'
+							AND myichi_portfolio.type =  'portfolio'
+							AND user_id =  '$uID' ");
+								if (!$sl_query) { echo 'Impossible d\'exécuter la requête : ' . mysql_error();	exit; }
+				
+				while ($row = mysql_fetch_assoc($sl_query)) {
+					$stoplossorder     = round($row['stoploss'],2);
+					$entryPrice        = $row['entry_price'];
+					if ($stoplossorder > $entryPrice) {$linecolor='green';} else {$linecolor='orange';}
+					$x=20;
+					if ((abs($stoplossorder - $stoploss)) < ($stoploss * 0.01)) {$x = $x+170;}
+					
+					echo "{
+							color: '".$linecolor."',
+							width: 1,
+							value: ".$stoplossorder.",
+							zIndex: 9999,
+							label: {
+								text: 'StopLoss Order: ".$stoplossorder."',
+								align: 'left',
+								x: ".$x."
+								}
+							}            
+						";	
+				}
+			echo "]";
+			?>
+			// End StopLoss
+		    },
+			{
+		        title: {
+		        text: 'Volume'
+		        },
+		        top: 485,
+		        height: 35,
+		        offset: 0,
+		        lineWidth: 1
+		    }, {
+		        title: {
+		        text: 'Ichimoku Signal'
+		        },
+				opposite: true,
+				height: 420,
+				gridLineWidth: 0,
+		        lineWidth: 1,
+				tickInterval: 2
+		    }
+			],
+			
+		    rangeSelector: {
+		        enabled: true,
+				selected: <?php if ($destination=='popup') {echo 2;} else {echo $user->data['rangeselect_charts'];} ?>,
+				inputEnabled: false,
+				labelStyle: {
+                color: '#6D869F'
+				},
+				buttonTheme: { // styles for the buttons
+					fill: 'none',
+					stroke: 'none',
+					style: {
+						color: '#039',
+
+						},
+					states: {
+						hover: {
+							fill: 'white'
+						},
+						select: {
+							fill: 'white',
+							style: {
+							color: 'black'
+							}
+						}
+					}
+				},
+		    },
+
+			series : [
+			
+			{
+				name : '<?php echo $symbol; ?>',
+				id:'Flagline',
+				type: 'candlestick',
+				color: '#FF0000',
+                upColor: '#00AE00',
+				zIndex: 99,
+				data : <?php echo $json_ohlc; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+				dataGrouping: {
+				units: groupingUnits
+		        }
+			}
+			,
+			{
+			// this is the Cloud
+		        type: 'arearange',
+		        name: 'Cloud',
+				lineWidth: null,
+				fillOpacity: .05,
+				zIndex: null,
+		        data: <?php echo $json_cloud; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+
+		    }
+			,
+			{
+			// this is the Senkou Span A
+		        type: 'spline',
+				lineWidth: 1,
+		        name: 'Senkou Span A',
+				color: '#7DA647',
+		        data: <?php echo $json_span_a; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    }
+			,{
+			// this is the Senkou Span B
+		        type: 'spline',
+				lineWidth: 1,
+		        name: 'Senkou Span B',
+				color: '#B84747',
+		        data: <?php echo $json_span_b; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    },
+			{
+			// this is the Tenkan-sen
+		        type: 'line',
+				lineWidth: 1,
+		        name: 'Tenkan-sen',
+				color: '#0000FF',
+		        data: <?php echo $json_tenkan; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    }
+			,{
+			// this is the Kijun-Sen
+		        type: 'line',
+				lineWidth: 1,
+		        name: 'Kijun-Sen',
+				color: '#FF0000',
+		        data: <?php echo $json_kijun; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    }	
+			,{
+			// this is the Chikou Span
+		        type: 'line',
+				lineWidth: 1,
+		        name: 'Chikou Span',
+				color: '#00AE00',
+		        data: <?php echo $json_chikou; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    } 
+			,{
+			// this is the Ichimoku Signal
+		        type: 'spline',
+				lineWidth: 1,
+		        name: 'Ichimoku Signal',
+				id: 'Ichimoku_Signal',
+				color: 'gold',
+				yAxis: 2,
+				visible: false,
+		        data: <?php echo $json_FiveDayAvg_ichimoku; ?>,
+				tooltip: {
+					valueDecimals: 2
+				},
+				zIndex: 999,
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    }
+			,{
+		        type: 'column',
+		        name: 'Volume',
+				color: '#0084D1',
+		        data: <?php echo $json_volume; ?>,
+		        yAxis: 1,
+		        dataGrouping: {
+				units: groupingUnits
+		        }
+		    } 
+			
+			<?php
+			// ------------------- Now we go and fetch the Buy and Sell Signal flags for the current user  -----------------
+			
+		// Select old or new calculations
+		$version='old'; // either 'old' or 'new'
+		if ($version=='old') {
+			
+			if (($user->data['backtrading']=='yes') || $backtrade=='yes') {
+			$period=""; $dailyUpdate="2";
+			calculateTradeSignals($symbol,$uID,$period,$dailyUpdate);
+			$count = count($tradeSignals['signalDate']);
+				for ($i = 0; $i < $count; $i++) {
+					if ($tradeSignals['tradeDirection'][$i]=='Bullish') {$color='green';} else {$color='red';}
+					if ($tradeSignals['delta'][$i] <>0) {$gain="Gain: ".$tradeSignals['delta'][$i]."%";} else {$gain="";}
+					if ($tradeSignals['delta'][$i] >0) 
+					{$bullishgain = $bullishgain + abs($tradeSignals['delta'][$i]); $bullishcount++;} else
+					{$bearishgain = $bearishgain + abs($tradeSignals['delta'][$i]); $bearishcount++;}
+					echo "
+					,{
+						type: 'flags',
+						name: '" .$tradeSignals['tradeSignal'][$i]. "',
+						color: '$color',
+						data: [{
+							x : (".$tradeSignals['signalDate'][$i]."),
+							title : '" .$tradeSignals['tradeSignal'][$i]. "',
+							text : '".$tradeSignals['tradeDirection'][$i]." ".$tradeSignals['tradeSignal'][$i]." Signal <br>".$gain."'
+							}],
+						onSeries : 'Flagline',
+						shape : 'circlepin',
+						shadow: false,
+						
+						y: -50,
+						zIndex: 9999,
+						dataGrouping: {
+							units: groupingUnits
+							},
+						width : 25
+					}";
+			}
+			// The flag below shows the total gain over the available data period
+			echo "
+					,{
+						type: 'flags',
+						name: 'Total',
+						color: '#0099FF',
+						data: [{
+							x : (".((strtotime("Today")*1000) + 86400000)."),
+							title : 'Bullish Total: ".$bullishgain."%<br>Bearish Total: ".$bearishgain."%',
+							text : 'Historic total gain over the available data period:<br>Bullish Total: ".$bullishgain."% (".$bullishcount." trades)<br>Bearish Total: ".$bearishgain."% (".$bearishcount." trades)'
+							}],
+						
+						shape : 'squarepin',
+						shadow: false,
+						
+						y: -50,
+						zIndex: 9999,
+						dataGrouping: {
+							units: groupingUnits
+							},
+						width : 140
+					}";
+			}
+			else // ------------------- Back Trading is OFF, so we only show the latest signal from the 'user_signals' table  ------
+			{
+				$minVolume=$user->data["min_volume_instrument"];
+				$ichi_query = mysql_query("
+							SELECT trade_direction, signal_date AS date, trade_signal
+							FROM myichi_user_signals
+							WHERE yahoo_symbol = '$symbol'
+							AND user_id =  '$uID' ");
+								if (!$ichi_query) { echo 'Impossible d\'exécuter la requête : ' . mysql_error();	exit; }
+				
+				while ($row = mysql_fetch_assoc($ichi_query)) {
+				$date                 = (strtotime($row['date'])*1000);
+				$tradeSignal          = $row['trade_signal'];
+				$direction            = $row['trade_direction'];
+				if ($direction=='Bullish') {$color='green';} else {$color='red';}
+				echo "
+					,{
+						type: 'flags',
+						name: '" .$tradeSignal. "',
+						color: '$color',
+						data: [{
+							x : (".$date."),
+							title : '" .$tradeSignal. "',
+							text : '".$direction." ".$tradeSignal." Signal <br>'
+							}],
+						onSeries : 'Flagline',
+						shape : 'circlepin',
+						shadow: false,
+						
+						y: -50,
+						zIndex: 9999,
+						dataGrouping: {
+							units: groupingUnits
+							},
+						width : 25
+					}";
+
+			
+				}
+			}
+			
+		}
+		else // new calculation
+		{
+			if (($user->data['backtrading']=='yes') || $backtrade=='yes') {
+			$period=""; $dailyUpdate="2";
+			calculateEntryExitSignals($symbol,$uID,$period,$dailyUpdate);
+			$count = count($tradeSignals['tradeSignal']);
+				for ($i = 0; $i < $count; $i++) {
+					if ($tradeSignals['tradeDirection'][$i]=='Bullish') {$color='green';} else {$color='red';}
+					if ($tradeSignals['delta'][$i] <>0) {$gain="Gain: ".$tradeSignals['delta'][$i]."%";} else {$gain="";}
+					if ($tradeSignals['delta'][$i] >0) 
+					{$bullishgain = $bullishgain + abs($tradeSignals['delta'][$i]); $bullishcount++;} else
+					{$bearishgain = $bearishgain + abs($tradeSignals['delta'][$i]); $bearishcount++;}
+					if ($tradeSignals['entryDate'][$i] > '') {$signalDate = $tradeSignals['entryDate'][$i];}
+					elseif ($tradeSignals['exitDate'][$i] > '') {$signalDate = $tradeSignals['exitDate'][$i];}
+					echo "
+					,{
+						type: 'flags',
+						name: '" .$tradeSignals['tradeSignal'][$i]. "',
+						color: '$color',
+						data: [{
+							x : (".$signalDate."),
+							title : '" .$tradeSignals['tradeSignal'][$i]. "',
+							text : '".$tradeSignals['tradeDirection'][$i]." ".$tradeSignals['tradeSignal'][$i]." Signal <br>".$gain."'
+							}],
+						onSeries : 'Flagline',
+						shape : 'circlepin',
+						shadow: false,
+						
+						y: -50,
+						zIndex: 9999,
+						dataGrouping: {
+							units: groupingUnits
+							},
+						width : 25
+					}";
+				}
+		}
+		}
+		// ----------------------  End New Calculation  ------------------------
+			
+			// ------------------  From here we add the actual entry & exit flags for the current-user Portfolio  ----------------
+			
+				$portf_query = mysql_query("
+							SELECT *
+							FROM myichi_portfolio
+							WHERE entry_date >0
+							AND symbol = '$symbol'
+							AND user_id =  '$uID' ");
+								if (!$portf_query) { echo 'Impossible d\'exécuter la requête : ' . mysql_error();	exit; }
+				
+				while ($row = mysql_fetch_assoc($portf_query)) {
+				$entryDate            = ((strtotime($row['entry_date'])*1000)+ 86400000);
+				$entryPrice           = $row['entry_price'];
+				$exitSignal           = 'Exit';
+				$exitDate             = ((strtotime($row['exit_date'])*1000)+ 86400000);
+				$exitPrice            = $row['exit_price'];
+				if ($exitDate>0) {$gain = round(((($exitPrice/$entryPrice)-1)*100),2);
+								if ($gain>0) {$gaincolor=green;} else {$gaincolor=red;}
+								}
+			
+					echo "
+					,{
+						type: 'flags',
+						name: '" .$lang['CHARTFLAG_ENTRY']. "',
+						color: 'transparent',
+						fillColor : 'blue',
+						data: [{
+							x : (".$entryDate."),
+							title : '" .$lang['CHARTFLAG_ENTRY']. "',
+							text : '".$lang['CHARTFLAG_ENTRY_PRICE']." ".$entryPrice."'
+							}],
+						onSeries : 'Flagline',
+						
+						shadow: false,
+						shape : 'squarepin',
+						style : {
+								color : 'white'
+								},
+						states : {
+							hover : {
+								fillColor : 'blue',
+								color : 'blue'
+							}
+						},
+						y: 70,
+						zIndex: 9999,
+						dataGrouping: {
+							units: groupingUnits
+							},
+						width : 30
+					}";
+					if ($exitDate>0) {
+					echo "
+					,{
+						type: 'flags',
+						name: '" .$lang['CHARTFLAG_EXIT']. "',
+						color: 'transparent',
+						fillColor : '".$gaincolor."',
+						data: [{
+							x : (".$exitDate."),
+							title : '" .$lang['CHARTFLAG_EXIT']. "',
+							text : '".$lang['CHARTFLAG_EXIT_PRICE']." ".$exitPrice." ".$lang['CHARTFLAG_GAIN'].$gain."%'
+							}],
+						onSeries : 'Flagline',
+						shadow: false,
+						shape : 'squarepin',
+						style : {
+								color : 'white'
+								},
+						states : {
+							hover : {
+								fillColor : '".$gaincolor."',
+								color : '".$gaincolor."'
+							}
+						},
+						y: 95,
+						zIndex: 9999,
+						dataGrouping: {
+							units: groupingUnits
+							},
+						width : 30
+					}";			
+					}
+				}		
+			?> 
+			
+			] // end of the series
+		
+			});
+		$('#toggle-ichimokuSignal').toggle(function () {
+        chart.get('Ichimoku_Signal').show();
+		}, function () {
+        chart.get('Ichimoku_Signal').hide();
+		});
+		
+});
+
+		</script>

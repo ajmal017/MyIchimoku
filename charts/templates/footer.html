@@ -1,0 +1,69 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+
+<!-- This is the page footer  -->
+<?php
+$time = microtime();
+$time = explode(' ', $time);
+$time = $time[1] + $time[0];
+$finish = $time;
+$total_time = round(($finish - $start), 2);
+?>
+
+<table class="footer" width="100%">
+<tbody><tr>
+<td width="300" align="left"><img src="<?php echo $root_url; ?>/images/logo.png" border="0"></td>
+<td>
+<center><?php echo $lang['FOOTER_TIMER']." ".$total_time." ".$lang['FOOTER_TIMER_2']; ?></center>
+</td>
+<td width="300"><p align=right>&copy; Copyright <?php echo $copyright; ?> &nbsp&nbsp&nbsp </p></td>
+</tr></tbody>
+
+</table>
+
+<!-- Google Analytics code below this line -->
+
+
+<!-- end of footer  -->
+</body>
+
+</html>
+<?php
+$today   = date("Y-m-d");
+$time    = date("H:i:s");
+$uid     = $user->data['user_id'];
+$ip      = $_SERVER['REMOTE_ADDR'];
+$page    = $_SERVER['REQUEST_URI'];
+$browser = $_SERVER['HTTP_USER_AGENT'];
+$chrome  = 'Chrome';
+$firefox = 'Firefox';
+$msie    = 'MSIE';
+
+if     (strpos($browser, $chrome)  !== false) {$agent=$chrome;}
+elseif (strpos($browser, $firefox) !== false) {$agent=$firefox;} 
+elseif (strpos($browser, $msie)    !== false) {$agent=$msie;} 
+else                                          {$agent='Other';}
+
+if((!$user->signed) && ($_SERVER['REQUEST_URI']==$defaultfolder)) {$page=Public_Frontpage; $source=1;}
+if(( $user->signed) && ($_SERVER['REQUEST_URI']==$defaultfolder)) {$page=$defaultfolder.$defaulthome;}
+
+$findme = '&source=email';
+$email  = strpos($page, $findme);
+if ($email !== false) {$page = 'Email originated';$source=1;}
+if (!$user->signed && $source<1) {$page = "Hack attempt? ".$page;}
+
+
+mysql_query("INSERT INTO myichi_user_stats (user_id, ip, date, time, page, browser) VALUES ('$uid', '$ip', '$today', '$time', '$page', '$agent')");
+
+?>

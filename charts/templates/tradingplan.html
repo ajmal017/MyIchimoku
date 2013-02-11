@@ -1,0 +1,82 @@
+<?php
+#########################################################################################################################
+#                                                                                                                       #
+#   Copyright (c) 2012 by Oscar Buijten; http://myichimoku.eu  and  http://oscar.buijten.fr                             #
+#                                                                                                                       #
+#   This work is made available under the terms of the Creative Commons Attribution-NonCommercial 3.0 Unported,         #
+#                                                                                                                       #
+#   http://creativecommons.org/licenses/by-nc/3.0/legalcode                                                             #
+#                                                                                                                       #
+#   This work is WITHOUT ANY WARRANTY; without even the implied warranty of FITNESS FOR A PARTICULAR PURPOSE.           #
+#                                                                                                                       #
+#########################################################################################################################
+?>
+<br>
+<br>
+<div class="tabber">
+
+
+
+
+     <div class="tabbertab">
+	  <h2><?php echo $lang['TRADINGPLAN_TAB_PLAN']; ?></h2>
+	  
+	  <center>
+	  <table width="100%">
+	  <tr>
+	  <td>
+		<div id="showdata">
+		<?php $tp_group='tradplan_l'; $title=$lang['TRADINGPLAN_TP_TITLE']; include("ps/tradingplan_update.php");?>
+		<br><br>
+		</div>
+		<form class="listtable" id="tradplan_l" action="ps/tradingplan_update.php" method="post">
+	    <input type="hidden" name="ID" value="0|0|tradplan_l">
+		<input type="hidden" name="form" value="new">
+		<textarea cols="60" rows="3" name="tp_description"></textarea>
+        <input value="<?php echo $lang['TRADINGPLAN_TP_ADD']; ?>" src="../charts/images/add.png" type="image">
+  </form>
+
+
+		
+	  </td>
+
+	
+	  <td>
+		<div id="showdata">
+		<?php $tp_group='tradplan_r'; $title=$lang['TRADINGPLAN_TP_TITLE']; include("ps/tradingplan_update.php");?>
+		<br><br>
+		</div>
+		<form class="listtable" id="tradplan_r" action="ps/tradingplan_update.php" method="post">
+	    <input type="hidden" name="ID" value="0|0|tradplan_r">
+		<input type="hidden" name="form" value="new">
+		<textarea cols="60" rows="3" name="tp_description"></textarea>
+        <input value="<?php echo $lang['TRADINGPLAN_TP_ADD']; ?>" src="../charts/images/add.png" type="image">
+  </form>
+	  </td>
+	  </tr>
+	  </table>
+	  </center>
+     </div>
+
+	 
+	 <div class="tabbertab">
+	  <h2><?php echo $lang['TRADINGPLAN_TAB_RULES']; ?></h2>
+	  <p>Ichimoku Kinko Hyo Summary</p>
+	
+	<center>
+	<img src="images/slides/Slide1.PNG" border="0" align="center"></img>
+	<p></p>
+	<img src="images/slides/Slide2.PNG" border="0" align="center"></img>
+	<p></p>
+	<img src="images/slides/Slide3.PNG" border="0" align="center"></img>
+	<p></p>
+	<img src="images/slides/Slide4.PNG" border="0" align="center"></img>
+	<p></p>	
+	</center>
+
+	  
+     </div>
+	 
+
+</div>
+

@@ -1,0 +1,19 @@
+
+                                    *************  Known Issues  ***************
+
+- The biggest issue is probably me. :-) 
+  This is my first PHP/MySQL etc. application I ever have written. So the coding isn't very clean...
+  I have played around with code quite a bit in the past, but never knitted together something like this before.
+  In other words, if you have some suggestions, please go ahead and (suggest on howto) improve the basics.
+  
+- YQL is a great service, but somehow it is a little buggy at times. Though I believe to have correctly implemented
+  the use of their API, the report on my yahoo developper account doesn't show any usage statistics.
+  I guess something is wrong somewhere... Any help is appreciated here as well.
+  
+- The FR & NL language files haven't been kept in cinq with the EN file for a while know...
+
+- The templates are not as clean as I would like them to be. They really contain too much code.
+
+- In the Portfolio page, the history section requires improvement to seperate the (fiscal) years.
+
+- The admin page has very limited features and needs to be improved.
